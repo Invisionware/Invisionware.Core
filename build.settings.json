@@ -1,0 +1,39 @@
+{
+	"version": {
+		"VersionFile": "./build.version.json",
+		"AssemblyInfoFile": null,
+		"LoadFrom": "versionfile",
+		"AutoIncrementVersion": false
+	},
+	"build": {
+		"SourcePath": "./src",
+		"SolutionFileSpec": "./*.sln",
+		"BuildOutPutPath": "", 
+		"ArtifactsPath": "./artifacts/artifacts",
+		"TreatWarningsAsErrors": false
+	},
+	"xamarin": {
+		"EnableXamarinIOS": false,
+		"MacAgentIPAddress": "",
+		"MacAgentUserName": "",
+		"MacAgentUserPassword": ""
+	},
+	"test": {
+		"SourcePath": "./tests",
+		"ResultsPath": "./artifacts",
+		"AssemblyFileSpec": "*.UnitTests.dll",
+		"Framework": "NUnit3"
+	},
+	"nuget": {
+		"NuGetConfig": "",
+		"FeedUrl": "https://www.nuget.org",
+		"FeedAPIKey": "NUGETAPIKEY",
+		"ArtifactsPath": "./artifacts/packages",
+		"NuspecPath": "./nuspec",
+		"UpdateVersion": true,
+		"UpdateLibraryDependencies": true,
+		"VersionDependencyForLibrary": "greaterthanorequal",
+		"LibraryNamespaceBase": "Invisionware",
+		"LibraryMinVersionDependency": ""
+	}
+}

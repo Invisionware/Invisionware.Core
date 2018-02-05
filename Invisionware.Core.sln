@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".misc", ".misc", "{C33FEE15-6DB2-41A8-804B-163C42815927}"
+	ProjectSection(SolutionItems) = preProject
+		build.cake = build.cake
+		build.settings.json = build.settings.json
+		build.version.json = build.version.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{997C9E4B-D23B-4DA7-B167-49E9130EE802}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DD0478DF-8CE2-4CA1-8A8B-8811D29868C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Invisionware.Core", "src\Invisionware.Core\Invisionware.Core.csproj", "{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4E9F3578-ABB1-4D4E-AFF6-9921E415A0C3}"
+	ProjectSection(SolutionItems) = preProject
+		nuspec\Invisionware.Core.nuspec = nuspec\Invisionware.Core.nuspec
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Debug|x64.Build.0 = Debug|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Debug|x86.Build.0 = Debug|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Release|x64.ActiveCfg = Release|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Release|x64.Build.0 = Release|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Release|x86.ActiveCfg = Release|Any CPU
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1622E6E8-6E02-440A-AD43-3C6D79B93C6B} = {997C9E4B-D23B-4DA7-B167-49E9130EE802}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D67B0EEC-3E18-4482-B421-79BA35B86471}
+	EndGlobalSection
+EndGlobal
