@@ -12,7 +12,7 @@
 // <summary></summary>
 // ***********************************************************************
 
-namespace Invisionware.Core.Extensions
+namespace Invisionware.Extensions
 {
 	/// <summary>
 	/// Class StringExtensions.

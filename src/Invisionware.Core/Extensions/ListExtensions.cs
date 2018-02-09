@@ -15,7 +15,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Invisionware.Core.Extensions
+namespace Invisionware.Extensions
 {
 	/// <summary>
 	/// Class ListExtensions.

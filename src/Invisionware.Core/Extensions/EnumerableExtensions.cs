@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Invisionware.Core.Extensions
+namespace Invisionware.Extensions
 {
 	/// <summary>
 	/// Class EnumerableExtensions.
@@ -29,7 +29,7 @@ namespace Invisionware.Core.Extensions
 		/// <typeparam name="T"></typeparam>
 		/// <param name="source">The source.</param>
 		/// <param name="chunkSize">Size of the chunk.</param>
-		/// <returns>IEnumerable&lt;IEnumerable&lt;T&gt;&gt;.</returns>
+		/// <returns>A collection of collections that is split into slices</returns>
 		public static IEnumerable<IEnumerable<T>> ChunkBy<T>(this IEnumerable<T> source, int chunkSize)
 		{
 			return source
@@ -44,7 +44,7 @@ namespace Invisionware.Core.Extensions
 		/// <typeparam name="T"></typeparam>
 		/// <param name="collection">The collection.</param>
 		/// <param name="predicate">The predicate.</param>
-		/// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the collection is not null and contains any items, <c>false</c> otherwise.</returns>
 		public static bool AnySafe<T>(this IEnumerable<T> collection, Func<T, bool> predicate = null)
 		{
 			return collection != null && (predicate != null ? collection.Any(predicate) : collection.Any());
@@ -56,7 +56,7 @@ namespace Invisionware.Core.Extensions
 		/// <typeparam name="T"></typeparam>
 		/// <param name="collection">The collection.</param>
 		/// <param name="predicate">The predicate.</param>
-		/// <returns>System.Int32.</returns>
+		/// <returns>the number of items in the collection or 0 if its null.</returns>
 		public static int CountSafe<T>(this IEnumerable<T> collection, Func<T, bool> predicate = null)
 		{
 			return collection != null ? (predicate != null ? collection.Count(predicate) : collection.Count()) : 0;
@@ -68,7 +68,7 @@ namespace Invisionware.Core.Extensions
 		/// <typeparam name="T"></typeparam>
 		/// <param name="source">The source.</param>
 		/// <param name="count">The count.</param>
-		/// <returns>IEnumerable&lt;T&gt;.</returns>
+		/// <returns>a new collection that contains only the last count number of items</returns>
 		public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int count)
 		{
 			return source?.Skip(Math.Max(0, source.Count() - count));

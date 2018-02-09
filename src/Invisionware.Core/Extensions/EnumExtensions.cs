@@ -15,7 +15,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Invisionware.Core.Extensions
+namespace Invisionware.Extensions
 {
 	/// <summary>
 	/// Class EnumExtensions.

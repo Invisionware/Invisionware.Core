@@ -230,6 +230,6 @@ if ($Mono) { $cakeArguments += "-mono" }
 $cakeArguments += $ScriptArgs
 
 # Start Cake
-Write-Host "Running build script..."
+Write-Host "Running build script... ($cakeArguments)"
 &$CAKE_EXE $cakeArguments
 exit $LASTEXITCODE
