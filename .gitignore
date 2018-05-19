@@ -255,23 +255,16 @@ paket-files/
 																		 
 # CodeRush
 .cr/
-
 # CAKE
-tools/Addins/
-tools/Cake/
-tools/GitVersion.CommandLine*
-tools/NUnit.ConsoleRunner*
-tools/nuget.exe
-tools/CredentialProvider.VSS.exe
-tools/VSS.NuGet.AuthHelper.exe
-tools/settingsUtils.cake
-tools/versionUtils.cake
-tools/VSS.NuGet.AuthHelper.exe
-tools/packages.config.md5sum
+tools/**
+!tools/*.cake
+!tools/nuget.exe
+!tools/CredentialProvider.VSS.exe
+!tools/VSS.NuGet.AuthHelper.exe
 
 # GIT
-/git.password
-/nugetapi.key
+git.password
+nugetapi.key											  
 
 # Python Tools for Visual Studio (PTVS)
 __pycache__/

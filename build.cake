@@ -116,7 +116,7 @@ Task("Restore")
 	{
 		Information("Restoring {0}...", solution);
 
-		if (!string.IsNullOrEmpty(settings.NuGet.NuGetConfig) && FileExists(settings.NuGet.NuGetConfig))
+		if (FileExists(settings.NuGet.NuGetConfig))
 		{
 			NuGetRestore(solution, new NuGetRestoreSettings { ConfigFile = settings.NuGet.NuGetConfig });
 		} else {
@@ -143,10 +143,14 @@ Task("Build")
 	{
 		Information("Building {0}", solution);
 		try {
-			DotNetBuild(solution, s =>
-					s.WithProperty("TreatWarningsAsErrors",settings.Build.TreatWarningsAsErrors.ToString())
-					.WithTarget("Build")
-					.SetConfiguration(settings.Configuration));
+			MSBuild(solution, configurator =>
+				configurator.SetConfiguration(settings.Configuration)
+							// .SetVerbosity(Verbosity.Minimal)
+							// .UseToolVersion(MSBuildToolVersion.VS2015)
+							// .SetMSBuildPlatform(MSBuildPlatform.x86)
+							// .SetPlatformTarget(PlatformTarget.MSIL)
+			);
+			
 		} 
 		catch (Exception ex)
 		{
@@ -281,22 +285,16 @@ Task("Nuget-Publish")
 	{
 		try
 		{		
-			var ngps = new NuGetPushSettings {
+			NuGetPush(n, new NuGetPushSettings {
 				Source = settings.NuGet.FeedUrl,
 				ApiKey = settings.NuGet.FeedApiKey,
+				ConfigFile = settings.NuGet.NuGetConfig,
 				Verbosity = NuGetVerbosity.Normal
-			};
-			
-			if (!string.IsNullOrEmpty(settings.NuGet.NuGetConfig) && FileExists(settings.NuGet.NuGetConfig))
-			{
-				ngps.ConfigFile = settings.NuGet.NuGetConfig;
-			}
-			
-			NuGetPush(n, ngps);
+			});
 		}
 		catch (Exception ex)
 		{
-			Information("\tFailed to published: ", ex.ToString());
+			Information("\tFailed to published: ", ex.Message);
 			
 			if (ex.Message.Contains("403")) { authError = true; }
 		}
@@ -329,7 +327,7 @@ Task("Nuget-UnPublish")
 			args = args + string.Format(" -ApiKey {0}", settings.NuGet.FeedApiKey);
 		//}
 				
-		if (!string.IsNullOrEmpty(settings.NuGet.NuGetConfig) && FileExists(settings.NuGet.NuGetConfig)) {
+		if (!string.IsNullOrEmpty(settings.NuGet.NuGetConfig)) {
 			args = args + string.Format(" -Config {0}", settings.NuGet.NuGetConfig);
 		}
 		
