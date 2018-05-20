@@ -24,9 +24,9 @@
 		"Framework": "NUnit3"
 	},
 	"nuget": {
-		"NuGetConfig": "./.nuget/NuGet.config",
-		"FeedUrl": "https://www.nuget.com",
-		"FeedAPIKey": "[NUGETAPIKEY]",
+		"NuGetConfig": "./src/.nuget/NuGet.config",
+		"FeedUrl": "https://api.nuget.org/v3/index.json",
+		"FeedAPIKey": "NUGETAPIKEY",
 		"ArtifactsPath": "./artifacts/packages",
 		"NuspecPath": "./nuspec",
 		"UpdateVersion": true,

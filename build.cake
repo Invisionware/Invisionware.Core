@@ -281,16 +281,18 @@ Task("Nuget-Publish")
 		settings.NuGet.FeedApiKey = System.IO.File.ReadAllText("nugetapi.key");
 	}
 	
-	foreach (var n in nupkgFiles)
-	{
-		try
-		{		
-			NuGetPush(n, new NuGetPushSettings {
+	var nugetSettings = new NuGetPushSettings {
 				Source = settings.NuGet.FeedUrl,
 				ApiKey = settings.NuGet.FeedApiKey,
 				ConfigFile = settings.NuGet.NuGetConfig,
 				Verbosity = NuGetVerbosity.Normal
-			});
+			};
+	
+	foreach (var n in nupkgFiles)
+	{
+		try
+		{		
+			NuGetPush(n, nugetSettings);
 		}
 		catch (Exception ex)
 		{
