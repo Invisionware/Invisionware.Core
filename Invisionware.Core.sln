@@ -8,13 +8,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".misc", ".misc", "{C33FEE15
 		build.cake = build.cake
 		build.settings.json = build.settings.json
 		build.version.json = build.version.json
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{997C9E4B-D23B-4DA7-B167-49E9130EE802}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DD0478DF-8CE2-4CA1-8A8B-8811D29868C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Invisionware.Core", "src\Invisionware.Core\Invisionware.Core.csproj", "{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Invisionware.Core", "src\Invisionware.Core\Invisionware.Core.csproj", "{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4E9F3578-ABB1-4D4E-AFF6-9921E415A0C3}"
 	ProjectSection(SolutionItems) = preProject
