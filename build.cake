@@ -143,14 +143,25 @@ Task("Build")
 	{
 		Information("Building {0}", solution);
 		try {
-			MSBuild(solution, configurator =>
-				configurator.SetConfiguration(settings.Configuration)
-							// .SetVerbosity(Verbosity.Minimal)
-							// .UseToolVersion(MSBuildToolVersion.VS2015)
-							// .SetMSBuildPlatform(MSBuildPlatform.x86)
-							// .SetPlatformTarget(PlatformTarget.MSIL)
-			);
-			
+			switch (settings.Build.BuildType)
+			{
+				case "dotnetcore":
+					DotNetCoreBuild(solution.ToString(), new DotNetCoreBuildSettings
+													{
+														Configuration = settings.Configuration														
+													}
+									);
+					break;
+				default:
+					MSBuild(solution, configurator =>
+											configurator.SetConfiguration(settings.Configuration)
+											// .SetVerbosity(Verbosity.Minimal)
+											// .UseToolVersion(MSBuildToolVersion.VS2015)
+											// .SetMSBuildPlatform(MSBuildPlatform.x86)
+											// .SetPlatformTarget(PlatformTarget.MSIL)
+							);
+					break;
+			}			
 		} 
 		catch (Exception ex)
 		{

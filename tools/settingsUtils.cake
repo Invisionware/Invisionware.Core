@@ -188,6 +188,7 @@ public class BuildSettings
 		SolutionFileSpec = "*.sln";
 		TreatWarningsAsErrors = false;
 		MaxCpuCount = 0;
+		BuildType = "msbuild";
 	}
 	
 	public string SourcePath {get;set;}
@@ -196,6 +197,7 @@ public class BuildSettings
 	public string ArtifactsPath {get;set;}
 	public string BuildOutputPath {get;set;}
 	public int MaxCpuCount {get;set;}
+	public string BuildType {get;set;}
 	
 	public string SolutionFilePath {
 		get {
@@ -208,6 +210,7 @@ public class BuildSettings
 	public void Display(ICakeContext context)
 	{
 		context.Information("Build Settings:");
+		context.Information("\tBuild Type: {0}", BuildType);
 		context.Information("\tSource Path: {0}", SourcePath);
 		context.Information("\tArtifacts Path: {0}", ArtifactsPath);
 		context.Information("\tSolution File Spec: {0}", SolutionFileSpec);
