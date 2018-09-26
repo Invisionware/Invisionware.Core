@@ -146,9 +146,18 @@ Task("Build")
 			switch (settings.Build.BuildType)
 			{
 				case "dotnetcore":
+					var dotNetCoreBuildSettings = new DotNetCoreMSBuildSettings();
+					if (!string.IsNullOrEmpty(versionInfo.ToVersionPrefix()))
+						dotNetCoreBuildSettings.SetVersionPrefix(versionInfo.ToVersionPrefix());
+					if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
+						dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
+					if (!string.IsNullOrEmpty(versionInfo.ToString()))
+						dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(true));			
+					
 					DotNetCoreBuild(solution.ToString(), new DotNetCoreBuildSettings
 													{
-														Configuration = settings.Configuration														
+														Configuration = settings.Configuration,
+														MSBuildSettings = dotNetCoreBuildSettings
 													}
 									);
 					break;
