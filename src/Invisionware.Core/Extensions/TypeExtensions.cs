@@ -15,8 +15,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
-namespace Invisionware.Extensions
+namespace Invisionware
 {
 	/// <summary>
 	/// Class TypeExtensions.
@@ -57,7 +58,7 @@ namespace Invisionware.Extensions
 			{
 				results = nestedAtt;
 			}
-			else if (nestedAtt.AnySafe())
+			else if (nestedAtt != null && nestedAtt.Any())
 			{
 				results.AddRange(nestedAtt);
 			}
@@ -75,5 +76,30 @@ namespace Invisionware.Extensions
 		{
 			return type.GetAttributeOfType<TAttribute>() != null;
 		}
+
+		/// <summary>
+		/// Gets the runtime properties for the type specified.
+		/// </summary>
+		/// <param name="targetType">Type of the target.</param>
+		/// <returns>IEnumerable&lt;PropertyInfo&gt;.</returns>
+		public static IEnumerable<PropertyInfo> GetProperties(this Type targetType)
+		{
+			List<PropertyInfo> propertyInfos;
+			var targetTypeInfo = targetType.GetTypeInfo();
+
+			if (!targetTypeInfo.IsInterface)
+			{
+				propertyInfos = new List<PropertyInfo>(targetType.GetRuntimeProperties());
+			}
+			else
+			{
+				propertyInfos = (new Type[] { targetType })
+					.Concat(targetType.GetInterfaces())
+					.SelectMany(i => i.GetRuntimeProperties()).ToList();
+			}
+
+			return propertyInfos;
+		}
+
 	}
 }

@@ -1,27 +1,20 @@
 ﻿// ***********************************************************************
-// Assembly         : XLabs.Core
-// Author           : XLabs Team
-// Created          : 12-27-2015
-// 
-// Last Modified By : XLabs Team
-// Last Modified On : 01-04-2016
+// Assembly         : Invisionware.Core
+// Author           : Shawn Anderson
+// Created          : 01-27-2018
+//
+// Last Modified By : Shawn Anderson
+// Last Modified On : 01-23-2018
 // ***********************************************************************
-// <copyright file="DateTimeExtensions.cs" company="XLabs Team">
-//     Copyright (c) XLabs Team. All rights reserved.
+// <copyright file="DateTimeExtensions.cs" company="Invisionware">
+//     Copyright (c) . All rights reserved.
 // </copyright>
-// <summary>
-//       This project is licensed under the Apache 2.0 license
-//       https://github.com/XLabs/Xamarin-Forms-Labs/blob/master/LICENSE
-//       
-//       XLabs is a open source project that aims to provide a powerfull and cross 
-//       platform set of controls tailored to work with Xamarin Forms.
-// </summary>
+// <summary></summary>
 // ***********************************************************************
-// 
 
 using System;
 
-namespace XLabs
+namespace Invisionware
 {
     /// <summary>
     /// Class DateTimeExtensions.
@@ -82,5 +75,37 @@ namespace XLabs
         {
             return timeSpan == null ? default(long?) : (long)timeSpan.Value.TotalMilliseconds;
         }
-    }
+
+		/// <summary>
+		/// To the universal time.
+		/// </summary>
+		/// <param name="dateTime">The date time.</param>
+		/// <returns>System.Nullable&lt;DateTime&gt;.</returns>
+		public static DateTime? ToUniversalTime(this DateTime? dateTime)
+		{
+			return dateTime != null ? dateTime.Value.ToUniversalTime() : (DateTime?)null;
+		}
+
+		/// <summary>
+		/// Returns a <see cref="System.String" /> that represents this instance.
+		/// </summary>
+		/// <param name="dateTime">The date time.</param>
+		/// <param name="format">The format.</param>
+		/// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+		public static string ToString(this DateTime? dateTime, string format)
+		{
+			return dateTime == null ? null : dateTime.Value.ToString(format);
+		}
+
+		/// <summary>
+		/// Add days to the datatime (supports Nullable datatime objects).
+		/// </summary>
+		/// <param name="dateTime">The date time.</param>
+		/// <param name="value">The value.</param>
+		/// <returns>System.Nullable&lt;DateTime&gt;.</returns>
+		public static DateTime? AddDays(this DateTime? dateTime, double value)
+		{
+			return dateTime == null ? (DateTime?)null : dateTime.Value.AddDays(value);
+		}
+	}
 }

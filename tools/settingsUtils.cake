@@ -24,7 +24,7 @@ public class SettingsUtils
 		obj.Target = context.Argument<string>("target", obj.Target);
 		obj.Configuration = context.Argument<string>("configuration", obj.Configuration);
 		obj.VersionFile = context.Argument<string>("versionFile", obj.VersionFile);
-				
+					
 		obj.ExecuteBuild 		= GetBoolArgument(context, "build", obj.ExecuteBuild);
 		obj.ExecuteBuild 		= !GetBoolArgument(context, "skipBuild", !obj.ExecuteBuild);
 
@@ -41,6 +41,11 @@ public class SettingsUtils
 		obj.ExecuteClean 		= GetBoolArgument(context, "clean", obj.ExecuteClean); 
 		obj.ExecuteClean 		= !GetBoolArgument(context, "skipClean", !obj.ExecuteClean); 
 
+		if (obj.Version == null) obj.Version = new VersionSettings();
+
+		obj.Version.AutoIncrementVersion = GetBoolArgument(context, "autoincrementversion", obj.Version.AutoIncrementVersion);
+		obj.Version.AutoIncrementVersion = GetBoolArgument(context, "autoversion", obj.Version.AutoIncrementVersion);
+		
 		if (obj.Xamarin == null) obj.Xamarin = new XamarinSettings();
 
 		obj.Xamarin.EnableXamarinIOS 		= GetBoolArgument(context, "enableXamarinIOS", obj.Xamarin.EnableXamarinIOS);
@@ -78,6 +83,7 @@ public class SettingsUtils
 		context.Information("\t\t-Configuration=<Configuration>\t\t(Default: {0})", defaultValues.Configuration);
 		context.Information("\t\t-settingsFile=<Settings File>\t\t(Default: {0})", defaultValues.SettingsFile);
 		context.Information("\t\t-versionFile=<Version File>\t\t(Default: {0})", defaultValues.VersionFile);
+		context.Information("\t\t-autoincrement=<0|1>\t\t\t\t(Default: {0})", defaultValues.Version.AutoIncrementVersion);
 		context.Information("\t\t-build=<0|1>\t\t\t\t(Default: {0})", defaultValues.ExecuteBuild);
 		context.Information("\t\t-package=<0|1>\t\t\t\t(Default: {0})", defaultValues.ExecutePackage);
 		context.Information("\t\t-unitTest=<0|1>\t\t\t\t(Default: {0})", defaultValues.ExecuteUnitTest);

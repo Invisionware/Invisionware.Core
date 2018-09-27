@@ -6,9 +6,9 @@
 		<title>Invisionware - Core</title>
 		<authors>Invisionware</authors>
 		<owners>Invisionware</owners>
-		<projectUrl>https://github.com/Invisionware/Core</projectUrl>
-		<licenseUrl>https://raw.githubusercontent.com/Invisionware/Core/master/LICENSE</licenseUrl>
-		<iconUrl>https://github.com/Invisionware/Core/raw/master/logo.png</iconUrl>
+		<projectUrl>https://github.com/Invisionware/Invisionware.Core</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/Invisionware/Invisionware.Core/master/LICENSE</licenseUrl>
+		<iconUrl>https://github.com/Invisionware/Invisionware.Core/raw/master/logo.png</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>This package implements the core invisionware framework</description>
 		<summary>Invisionware is a open source project that aims to provide a powerfull and cross platform set of tools and extension libraries.</summary>
