@@ -9,8 +9,9 @@
 		"BuildType": "dotnetcore",
 		"SourcePath": "./src",
 		"SolutionFileSpec": "./*.sln",
-		"ArtifactsPath": "./artifacts/app",
-		"TreatWarningsAsErrors": false
+		"ArtifactsPath": "./artifacts/packages",
+		"TreatWarningsAsErrors": false,
+		"CopyNugetPackagesToArtificatsPath":  true
 	},
 	"xamarin": {
 		"EnableXamarinIOS": false,
@@ -25,6 +26,7 @@
 		"Framework": "NUnit3"
 	},
 	"nuget": {
+		"BuildType": "dotnetcore",
 		"NuGetConfig": "./src/.nuget/NuGet.config",
 		"FeedUrl": "https://api.nuget.org/v3/index.json",
 		"FeedAPIKey": "NUGETAPIKEY",

@@ -15,10 +15,13 @@ public class SettingsUtils
 			context.Error("Settings File Does Not Exist");
 			return null;
 		}
-		
+
 		var obj = context.DeserializeJsonFromFile<Settings>(settingsFile);
 
 		obj.SettingsFile = settingsFile;
+
+		obj.RootPath = context.MakeAbsolute(context.Directory(obj.RootPath)).ToString() + "/";
+		if (obj.Build.ArtifactsPath.StartsWith("./")) obj.Build.ArtifactsPath.Replace("./", obj.RootPath);
 		
 		// Allow for any overrides
 		obj.Target = context.Argument<string>("target", obj.Target);
@@ -55,6 +58,7 @@ public class SettingsUtils
 
 		if (obj.NuGet == null) obj.NuGet = new NuGetSettings();
 		
+		obj.NuGet.BuildType		= context.Argument<string>("BuildType", obj.NuGet.BuildType);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeed", obj.NuGet.FeedUrl);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeedUrl", obj.NuGet.FeedUrl);
 
@@ -112,6 +116,7 @@ public class Settings
 		ExecuteUnitTest = true;
 		ExecuteClean = true;
 		
+		RootPath = ".\\";
 		Target = "DisplayHelp";
 		Configuration = "Release";
 		SettingsFile = ".\\build.settings.json";
@@ -128,6 +133,7 @@ public class Settings
 	public string Configuration {get;set;}
 	public string SettingsFile {get;set;}
 	public string VersionFile {get;set;}
+	public string RootPath {get;set;}
 	
 	public bool ExecuteBuild {get;set;}
 	public bool ExecutePackage {get;set;}
@@ -145,6 +151,7 @@ public class Settings
 		context.Information("Settings:");
 
 		context.Information("\tTarget: {0}", Target);
+		context.Information("\tRoot Path: {0}", RootPath);
 		context.Information("\tConfiguration: {0}", Configuration);
 		context.Information("\tSettings File: {0}", SettingsFile);
 		context.Information("\tVersion File: {0}", VersionFile);
@@ -286,6 +293,7 @@ public class NuGetSettings
 		LibraryMinVersionDependency = null;
 	}
 
+	public string BuildType {get;set;}
 	public string NuGetConfig {get;set;}
 	public string FeedUrl {get;set;}
 	public string FeedApiKey {get;set;}
@@ -312,6 +320,7 @@ public class NuGetSettings
 	public void Display(ICakeContext context)
 	{
 		context.Information("NuGet Settings:");
+		context.Information("\tBuild Type: {0}", BuildType);
 		context.Information("\tNuGet Config: {0}", NuGetConfig);
 		context.Information("\tFeed Url: {0}", FeedUrl);
 		//context.Information("\tFeed API Key: {0}", FeedApiKey);

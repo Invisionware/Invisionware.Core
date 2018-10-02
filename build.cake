@@ -1,3 +1,4 @@
+#load "tools/settingsUtils.cake"
 ///////////////////////////////////////////////////////////////////////////////
 // Directives
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,6 +29,7 @@ Setup((c) =>
 {
 	c.Information("Command Line:");
 	c.Information("\tConfiguration: {0}", settings.Configuration);
+	c.Information("\tRoot Path: {0}", settings.RootPath);
 	c.Information("\tSettings Files: {0}", settings.SettingsFile);
 	c.Information("\tExecute Build: {0}", settings.ExecuteBuild);
 	c.Information("\tExecute Clean: {0}", settings.ExecuteClean);
@@ -240,6 +242,61 @@ Task("Nuget-Package")
 	.Description("Packages all nuspec files into nupkg packages.")
 	.WithCriteria(settings.ExecutePackage)
 	.IsDependentOn("UnitTest")
+	.Does(() =>
+{
+	var artifactsPath = Directory(settings.NuGet.ArtifactsPath);
+		
+	CreateDirectory(artifactsPath);
+
+	switch (settings.NuGet.BuildType)
+	{
+		case "dotnetcore":
+			RunTarget("Nuget-Package-DotNetCore");
+
+			break;
+		default: 
+			RunTarget("Nuget-Package-CLI");
+			
+			break;
+	}
+	
+});
+
+Task("Nuget-Package-DotNetCore")
+	.Description("Packages all projects in the solution using dotnetcore")
+	.WithCriteria(settings.ExecutePackage)
+	.Does(() =>
+{
+	var artifactsPath = Directory(settings.NuGet.ArtifactsPath);
+		
+	CreateDirectory(artifactsPath);
+
+	 var dncps = new DotNetCorePackSettings
+	 {
+		 Configuration = settings.Configuration,
+		 OutputDirectory = artifactsPath
+	 };
+
+	 Information("Location of Artifacts: {0}", artifactsPath);
+
+	 foreach(var solution in solutions)
+	 {
+		Information("Building Packages for {0}", solution);
+
+		try {
+			//DotNetCorePack("./src/**/*.csproj", dncps);
+			DotNetCorePack(solution.ToString(), dncps);
+		}
+		catch (Exception ex)
+		{
+			Information("There was a problem with packing some of the projects in {0}", solution);
+		}
+	}
+});
+
+Task("Nuget-Package-CLI")
+	.Description("Packages all projects in the solution using the nuget.exe cli")
+	.WithCriteria(settings.ExecutePackage)
 	.Does(() =>
 {
 	var artifactsPath = Directory(settings.NuGet.ArtifactsPath);
