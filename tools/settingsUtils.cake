@@ -21,7 +21,10 @@ public class SettingsUtils
 		obj.SettingsFile = settingsFile;
 
 		obj.RootPath = context.MakeAbsolute(context.Directory(obj.RootPath)).ToString() + "/";
-		if (obj.Build.ArtifactsPath.StartsWith("./")) obj.Build.ArtifactsPath.Replace("./", obj.RootPath);
+		if (obj.Build.ArtifactsPath.StartsWith("./")) obj.Build.ArtifactsPath = obj.Build.ArtifactsPath.Replace("./", obj.RootPath);
+		if (obj.Build.ArtifactsPath.Contains("[ROOTPATH]")) obj.Build.ArtifactsPath = obj.Build.ArtifactsPath.Replace("[ROOTPATH]", obj.RootPath);
+		
+		context.Information("Updating ArtifactsPath to {0}}", obj.Build.ArtifactsPath);
 		
 		// Allow for any overrides
 		obj.Target = context.Argument<string>("target", obj.Target);
@@ -66,6 +69,11 @@ public class SettingsUtils
 		
 		obj.NuGet.LibraryMinVersionDependency 		= (context.Argument<string>("dependencyVersion", obj.NuGet.LibraryMinVersionDependency)).Replace(":",".");
 		obj.NuGet.VersionDependencyTypeForLibrary 	= context.Argument<VersionDependencyTypes>("dependencyType", obj.NuGet.VersionDependencyTypeForLibrary);
+
+		if (obj.NuGet.ArtifactsPath.StartsWith("./")) obj.NuGet.ArtifactsPath = obj.NuGet.ArtifactsPath.Replace("./", obj.RootPath);
+		if (obj.NuGet.ArtifactsPath.Contains("[ROOTPATH]")) obj.NuGet.ArtifactsPath = obj.NuGet.ArtifactsPath.Replace("[ROOTPATH]", obj.RootPath);
+		if (obj.NuGet.NuGetConfig.StartsWith("./")) obj.NuGet.NuGetConfig = obj.NuGet.NuGetConfig.Replace("./", obj.RootPath);
+		if (obj.NuGet.NuGetConfig.Contains("[ROOTPATH]")) obj.NuGet.NuGetConfig = obj.NuGet.NuGetConfig.Replace("[ROOTPATH]", obj.RootPath);
 		
 		return obj;
 	}
@@ -304,6 +312,7 @@ public class NuGetSettings
 	public bool UpdateLibraryDependencies {get;set;}
 	public string LibraryNamespaceBase {get;set;}
 	public string LibraryMinVersionDependency {get;set;}
+	public bool IncludeSymbols {get;set;}
 	
 	public string NuSpecFileSpec {
 		get {
@@ -333,6 +342,7 @@ public class NuGetSettings
 		context.Information("\tForce Version Match: {0}", VersionDependencyTypeForLibrary);
 		context.Information("\tLibrary Namespace Base: {0}", LibraryNamespaceBase);
 		context.Information("\tLibrary Min Version Dependency: {0}", LibraryMinVersionDependency);
+		context.Information("\tInclude Symbols: {0}", IncludeSymbols);
 	}
 }
 

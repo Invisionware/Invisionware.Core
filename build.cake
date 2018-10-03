@@ -271,10 +271,22 @@ Task("Nuget-Package-DotNetCore")
 		
 	CreateDirectory(artifactsPath);
 
+	var dotNetCoreBuildSettings = new DotNetCoreMSBuildSettings();
+	if (!string.IsNullOrEmpty(versionInfo.ToVersionPrefix()))
+		dotNetCoreBuildSettings.SetVersionPrefix(versionInfo.ToVersionPrefix());
+	if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
+		dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
+	if (!string.IsNullOrEmpty(versionInfo.ToString()))
+		dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(true));			
+						
 	 var dncps = new DotNetCorePackSettings
 	 {
 		 Configuration = settings.Configuration,
-		 OutputDirectory = artifactsPath
+		 OutputDirectory = artifactsPath,
+		 IncludeSymbols = settings.NuGet.IncludeSymbols,
+		 NoBuild = true,
+		 NoRestore = true,
+		 MSBuildSettings = dotNetCoreBuildSettings		 
 	 };
 
 	 Information("Location of Artifacts: {0}", artifactsPath);

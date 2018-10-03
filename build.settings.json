@@ -36,6 +36,7 @@
 		"UpdateLibraryDependencies": false,
 		"VersionDependencyForLibrary": "greaterthanorequal",
 		"LibraryNamespaceBase": "",
-		"LibraryMinVersionDependency": ""
+		"LibraryMinVersionDependency": "",
+		"IncludeSymbols": true
 	}
 }
