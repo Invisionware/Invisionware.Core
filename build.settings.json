@@ -27,6 +27,7 @@
 	},
 	"nuget": {
 		"BuildType": "dotnetcore",
+		"PublishType": "nuget",
 		"NuGetConfig": "./src/.nuget/NuGet.config",
 		"FeedUrl": "https://api.nuget.org/v3/index.json",
 		"FeedAPIKey": "NUGETAPIKEY",

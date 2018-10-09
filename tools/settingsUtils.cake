@@ -62,6 +62,7 @@ public class SettingsUtils
 		if (obj.NuGet == null) obj.NuGet = new NuGetSettings();
 		
 		obj.NuGet.BuildType		= context.Argument<string>("BuildType", obj.NuGet.BuildType);
+		obj.NuGet.PublishType	= context.Argument<string>("PublishType", obj.NuGet.PublishType);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeed", obj.NuGet.FeedUrl);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeedUrl", obj.NuGet.FeedUrl);
 
@@ -302,6 +303,7 @@ public class NuGetSettings
 	}
 
 	public string BuildType {get;set;}
+	public string PublishType {get;set;}
 	public string NuGetConfig {get;set;}
 	public string FeedUrl {get;set;}
 	public string FeedApiKey {get;set;}
@@ -330,6 +332,7 @@ public class NuGetSettings
 	{
 		context.Information("NuGet Settings:");
 		context.Information("\tBuild Type: {0}", BuildType);
+		context.Information("\tPublish Type: {0}", PublishType);
 		context.Information("\tNuGet Config: {0}", NuGetConfig);
 		context.Information("\tFeed Url: {0}", FeedUrl);
 		//context.Information("\tFeed API Key: {0}", FeedApiKey);
