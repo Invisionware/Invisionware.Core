@@ -5,7 +5,7 @@
 
 #l "tools/versionUtils.cake"
 #l "tools/settingsUtils.cake"
-#tool "nuget:?package=NUnit.ConsoleRunner"
+#tool "nuget:?package=NUnit.ConsoleRunner&version=3.9.0"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS

@@ -1,7 +1,7 @@
-#addin "Cake.Json"
-#addin "Cake.FileHelpers"
-#addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json"
-#tool nuget:?package=GitVersion.CommandLine
+#addin "Cake.Json&version=3.0.1"
+#addin "Cake.FileHelpers&version=3.1.0"
+#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
+#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
 
 using Newtonsoft.Json;
 

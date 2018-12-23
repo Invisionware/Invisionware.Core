@@ -5,7 +5,7 @@
 		<PackageId>Invisionware.Core</PackageId>
 		<Authors>Invisionware</Authors>
 		<PackageProjectUrl>https://github.com/Invisionware/Invisionware.Core</PackageProjectUrl>
-		<PackageLicenseUrl>https://raw.githubusercontent.com/Invisionware/Invisionware.Core/master/LICENSE</PackageLicenseUrl>
+		<license>Apache-2.0</license>
 		<PackageIconUrl>https://github.com/Invisionware/Invisionware.Core/raw/master/logo.png</PackageIconUrl>
 		<Description>This package implements the core invisionware framework</Description>
 		<PackageReleaseNotes>Initial version</PackageReleaseNotes>

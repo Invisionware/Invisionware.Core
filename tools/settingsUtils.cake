@@ -1,5 +1,5 @@
-#addin "Cake.Json"
-#addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json"
+#addin "Cake.Json&version=3.0.1"
+#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
 using Newtonsoft.Json;
 
 public class SettingsUtils
