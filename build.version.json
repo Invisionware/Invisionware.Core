@@ -1,1 +1,1 @@
-{"Major":1,"Minor":0,"Build":0,"PreRelease":6,"ReleaseNotes":null,"Semantic":null,"Milestone":null,"CakeVersion":"0.24.0.0","IsPreRelease":true}
+{"major":1,"minor":0,"build":2,"preRelease":2,"releaseNotes":["Added support for .NET Core"]}

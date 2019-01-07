@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<RootNamespace>Invisionware</RootNamespace>
+		<TargetFrameworks>netcoreapp2.0;netstandard2.0;net472</TargetFrameworks>
 		<PackageId>Invisionware.Core</PackageId>
 		<Authors>Invisionware</Authors>
 		<PackageProjectUrl>https://github.com/Invisionware/Invisionware.Core</PackageProjectUrl>
 		<license>Apache-2.0</license>
 		<PackageIconUrl>https://github.com/Invisionware/Invisionware.Core/raw/master/logo.png</PackageIconUrl>
 		<Description>This package implements the core invisionware framework</Description>
-		<PackageReleaseNotes>Initial version</PackageReleaseNotes>
+		<PackageReleaseNotes />
 		<Copyright>Copyright © 2018 Invisionware</Copyright>
 		<PackageTags>Invisionware extensions</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
+
 </Project>

@@ -251,6 +251,6 @@ public class VersionInfo
 		context.Information("\tMilestone: {0}", Milestone);
 		context.Information("\tCake Version: {0}", CakeVersion);
 		
-		if (ReleaseNotes != null) context.Information("\tRelease Notes: {0}", ReleaseNotes);
+		if (ReleaseNotes != null) context.Information("\tRelease Notes: \n\t\t{0}", string.Join("\n\t\t",ReleaseNotes));
 	}
 }

@@ -6,6 +6,7 @@
 #l "tools/versionUtils.cake"
 #l "tools/settingsUtils.cake"
 #tool "nuget:?package=NUnit.ConsoleRunner&version=3.9.0"
+#addin "Cake.Incubator"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -19,7 +20,10 @@ var versionInfo = VersionUtils.LoadVersion(Context, settings);
 ///////////////////////////////////////////////////////////////////////////////
 
 var solutions = GetFiles(settings.Build.SolutionFilePath);
+//Information("Solutions Found:"); Information("\t{0}", string.Join("\n\t", solutions.Select(x => x.GetFilename().ToString()).ToList()));
+
 var solutionPaths = solutions.Select(solution => solution.GetDirectory());
+//Information("Solution Paths Found:"); Information("\t{0}", string.Join("\n\t", solutionPaths.Select(x => x.ToString()).ToList()));
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -38,8 +42,8 @@ Setup((c) =>
 	c.Information("\tSolutions Found: {0}", solutions.Count);
 
 	// Executed BEFORE the first task.
-	settings.Display(c);
-	versionInfo.Display(c);
+	try { settings.Display(c); } catch (Exception ex) { Error("Failed to Display Settings: {0}", ex.ToString()); }
+	try { versionInfo.Display(c); } catch (Exception ex) { Error("Failed to Version Info: {0}", ex.ToString()); }
 });
 
 Teardown((c) =>
@@ -60,18 +64,25 @@ Task("CleanAll")
 	foreach(var path in solutionPaths)
 	{
 		Information("Cleaning {0}", path);
-		CleanDirectories(path + "/**/bin");
-		CleanDirectories(path + "/**/obj");
-		CleanDirectories(path + "/packages/**/*");
-		CleanDirectories(path + "/artifacts/**/*");
-		CleanDirectories(path + "/packages");
-		CleanDirectories(path + "/artifacts");
+
+		try {
+			CleanDirectories(path + "/**/bin");
+			CleanDirectories(path + "/**/obj");
+		}
+		catch {
+			Warning("\tFailed to clean path");
+		}
 	}
 	
 	var pathTest = MakeAbsolute(Directory(settings.Test.SourcePath)).FullPath;
 	Information("Cleaning {0}", pathTest);
 	try { CleanDirectories(pathTest + "/**/bin"); } catch {}
 	try { CleanDirectories(pathTest + "/**/obj"); } catch {}
+
+	var pathArtificats = MakeAbsolute(Directory(settings.Build.ArtifactsPath)).FullPath;
+	Information("Cleaning {0}", pathArtificats);
+	try { CleanDirectories(pathArtificats); } catch {}
+
 });
 
 Task("Clean")
@@ -98,13 +109,9 @@ Task("CleanPackages")
 	.Description("Cleans all packages that are used during the build process.")
 	.Does(() =>
 {
-	// Clean solution directories.
-	foreach(var path in solutionPaths)
-	{
-		Information("Cleaning {0}", path);
-		CleanDirectories(path + "/packages/**/*");
-		CleanDirectories(path + "/packages");
-	}
+	var pathArtificats = MakeAbsolute(Directory(settings.Build.ArtifactsPath)).FullPath;
+	Information("Cleaning {0}", pathArtificats);
+	try { CleanDirectories(pathArtificats); } catch {}
 });
 
 Task("Restore")
@@ -344,21 +351,16 @@ Task("Nuget-Publish")
 	.IsDependentOn("Nuget-Package")
 	.Does(() =>
 {
-	var authError = false;
-	
+	var artifactsPath = Directory(settings.NuGet.ArtifactsPath);
+		
+	CreateDirectory(artifactsPath);
+
 	if (settings.NuGet.FeedApiKey.ToLower() == "local")
 	{
 		settings.NuGet.FeedUrl = Directory(settings.NuGet.FeedUrl).Path.FullPath;
 		//Information("Using Local repository: {0}", settings.NuGet.FeedUrl);
 	}
 		
-	Information("Publishing Packages from {0} to {1} for version {2}", settings.NuGet.ArtifactsPath, settings.NuGet.FeedUrl, versionInfo.ToString());
-
-	// Lets get the list of packages (we can skip anything that is not part of the current version being built)
-	var nupkgFiles = GetFiles(settings.NuGet.NuGetPackagesSpec).Where(x => x.ToString().Contains(versionInfo.ToString())).ToList();
-
-	Information("\t{0}", string.Join("\n\t", nupkgFiles.Select(x => x.GetFilename().ToString()).ToList()));
-	
 	if (settings.NuGet.FeedApiKey == "NUGETAPIKEY") 
 	{
 		if (!System.IO.File.Exists("nugetapi.key"))
@@ -370,24 +372,112 @@ Task("Nuget-Publish")
 		settings.NuGet.FeedApiKey = System.IO.File.ReadAllText("nugetapi.key");
 	}
 	
+	if (string.IsNullOrEmpty(settings.NuGet.NuGetConfig)) settings.NuGet.NuGetConfig = null;
+
+	switch (settings.NuGet.BuildType)
+	{
+		case "dotnetcore":
+			RunTarget("Nuget-Publish-DotNetCore");
+
+			break;
+		default: 
+			RunTarget("Nuget-Publish-CLI");
+			
+			break;
+	}
+	
+});
+
+Task("Nuget-Publish-DotNetCore")
+	.Description("Publishes all of the nupkg packages to the nuget server. ")
+	.Does(() =>
+{
+	var authError = false;
+	
+	Information("Publishing Packages from {0} to {1} for version {2}", settings.NuGet.ArtifactsPath, settings.NuGet.FeedUrl, versionInfo.ToString());
+
+	// Lets get the list of packages (we can skip anything that is not part of the current version being built)
+	var nupkgFiles = GetFiles(settings.NuGet.NuGetPackagesSpec).Where(x => x.ToString().Contains(versionInfo.ToString())).ToList();
+
+	Information("\t{0}", string.Join("\n\t", nupkgFiles.Select(x => x.GetFilename().ToString()).ToList()));
+	
+	var dncps = new DotNetCoreNuGetPushSettings
+					{
+						Source = settings.NuGet.FeedUrl,
+						ApiKey = settings.NuGet.FeedApiKey
+					};
+
+	foreach (var n in nupkgFiles)
+	{
+		//Information("Pushing Package: {0}", n);
+
+		try {
+			DotNetCoreNuGetPush(n.ToString(), dncps);
+		}
+		catch (Exception ex)
+		{
+			if (ex.Message.Contains("403") || ex.Message.Contains("401")) { 
+				Information("\tUnable to Authenticate to Nuget Feed. Publish of {0} failed", n.ToString());
+
+				authError = true; 
+			}
+			else {
+				Warning("\tFailed to published: {0}", ex.Message);			
+			}
+		}
+	}
+
+	if (authError && settings.NuGet.FeedApiKey == "VSTS")
+	{
+		Warning("\tYou may need to Configuration Your Credentials.\r\n\t\tCredentialProvider.VSS.exe -Uri {0}", settings.NuGet.FeedUrl);
+	}
+});
+
+Task("Nuget-Publish-CLI")
+	.Description("Publishes all of the nupkg packages to the nuget server. ")
+	.Does(() =>
+{
+	var authError = false;
+	
+	Information("Publishing Packages from {0} to {1} for version {2}", settings.NuGet.ArtifactsPath, settings.NuGet.FeedUrl, versionInfo.ToString());
+
+	// Lets get the list of packages (we can skip anything that is not part of the current version being built)
+	var nupkgFiles = GetFiles(settings.NuGet.NuGetPackagesSpec).Where(x => x.ToString().Contains(versionInfo.ToString())).ToList();
+
+	Information("\t{0}", string.Join("\n\t", nupkgFiles.Select(x => x.GetFilename().ToString()).ToList()));
+	
+	if (BuildSystem.IsRunningOnVSTS)
+	{
+		settings.NuGet.FeedApiKey = EnvironmentVariable("SYSTEM_ACCESSTOKEN");
+	}
+
 	var nugetSettings = new NuGetPushSettings {
 				Source = settings.NuGet.FeedUrl,
 				ApiKey = settings.NuGet.FeedApiKey,
-				ConfigFile = settings.NuGet.NuGetConfig,
-				Verbosity = NuGetVerbosity.Normal
+				Verbosity = NuGetVerbosity.Detailed
 			};
 	
 	foreach (var n in nupkgFiles)
 	{
+		Information("Pushing Package: {0}", n);
+
 		try
 		{		
 			NuGetPush(n, nugetSettings);
 		}
 		catch (Exception ex)
 		{
-			Information("\tFailed to published: ", ex.Message);
-			
-			if (ex.Message.Contains("403")) { authError = true; }
+			if (ex.Message.Contains("403") || ex.Message.Contains("401")) { 
+				Information("\tUnable to Authenticate to Nuget Feed. Publish of {0} failed", n.ToString());
+
+				authError = true; 
+			}
+			else if (ex.Message.Contains("409")) {
+				Warning("\tUnable to publish package: {0}", ex.Message);			
+			}
+			else {
+				Error("\tFailed to published: {0}", ex.Message);			
+			}
 		}
 	}
 	

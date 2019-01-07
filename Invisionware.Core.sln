@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".misc", ".misc", "{C33FEE15-6DB2-41A8-804B-163C42815927}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,11 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DD0478DF-8CE2-4CA1-8A8B-8811D29868C0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Invisionware.Core", "src\Invisionware.Core\Invisionware.Core.csproj", "{1622E6E8-6E02-440A-AD43-3C6D79B93C6B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4E9F3578-ABB1-4D4E-AFF6-9921E415A0C3}"
-	ProjectSection(SolutionItems) = preProject
-		nuspec\Invisionware.Core.nuspec = nuspec\Invisionware.Core.nuspec
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Invisionware.Core.Tests", "tests\Invisionware.Core.Tests\Invisionware.Core.Tests.csproj", "{00367A9C-9151-43A7-B09D-352BDBCC2EBB}"
 EndProject

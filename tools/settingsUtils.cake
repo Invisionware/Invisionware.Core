@@ -6,7 +6,7 @@ public class SettingsUtils
 {
 	public static Settings LoadSettings(ICakeContext context)
 	{
-		var settingsFile = context.Argument<string>("settingsFile", ".\\build.settings.json");
+		var settingsFile = context.Argument<string>("settingsFile", "./build.settings.json");
 		
 		context.Information("Loading Settings: {0}", settingsFile);
 
@@ -21,15 +21,22 @@ public class SettingsUtils
 		obj.SettingsFile = settingsFile;
 
 		obj.RootPath = context.MakeAbsolute(context.Directory(obj.RootPath)).ToString() + "/";
-		if (obj.Build.ArtifactsPath.StartsWith("./")) obj.Build.ArtifactsPath = obj.Build.ArtifactsPath.Replace("./", obj.RootPath);
-		if (obj.Build.ArtifactsPath.Contains("[ROOTPATH]")) obj.Build.ArtifactsPath = obj.Build.ArtifactsPath.Replace("[ROOTPATH]", obj.RootPath);
-		
-		context.Information("Updating ArtifactsPath to {0}}", obj.Build.ArtifactsPath);
+		//context.Information("Root Path {0}", obj.RootPath);
+
+		obj.SettingsFile = ExpandSettingsPath(obj.SettingsFile, obj.RootPath);
+
+		if (obj.Build == null) obj.Build = new BuildSettings();
+
+		obj.Build.ArtifactsPath 	= ExpandSettingsPath(obj.Build.ArtifactsPath, obj.RootPath);
+		obj.Build.SourcePath 		= ExpandSettingsPath(obj.Build.SourcePath, obj.RootPath);
+		obj.Build.SolutionFileSpec 	= ExpandSettingsPath(obj.Build.SolutionFileSpec, obj.RootPath);
 		
 		// Allow for any overrides
-		obj.Target = context.Argument<string>("target", obj.Target);
-		obj.Configuration = context.Argument<string>("configuration", obj.Configuration);
-		obj.VersionFile = context.Argument<string>("versionFile", obj.VersionFile);
+		obj.Target 				= context.Argument<string>("target", obj.Target);
+		obj.Configuration 		= context.Argument<string>("configuration", obj.Configuration);
+
+		obj.VersionFile 		= context.Argument<string>("versionFile", obj.VersionFile);
+		obj.VersionFile 		= ExpandSettingsPath(obj.VersionFile, obj.RootPath);
 					
 		obj.ExecuteBuild 		= GetBoolArgument(context, "build", obj.ExecuteBuild);
 		obj.ExecuteBuild 		= !GetBoolArgument(context, "skipBuild", !obj.ExecuteBuild);
@@ -49,8 +56,9 @@ public class SettingsUtils
 
 		if (obj.Version == null) obj.Version = new VersionSettings();
 
-		obj.Version.AutoIncrementVersion = GetBoolArgument(context, "autoincrementversion", obj.Version.AutoIncrementVersion);
-		obj.Version.AutoIncrementVersion = GetBoolArgument(context, "autoversion", obj.Version.AutoIncrementVersion);
+		obj.Version.VersionFile 			= obj.VersionFile;
+		obj.Version.AutoIncrementVersion	= GetBoolArgument(context, "autoincrementversion", obj.Version.AutoIncrementVersion);
+		obj.Version.AutoIncrementVersion 	= GetBoolArgument(context, "autoversion", obj.Version.AutoIncrementVersion);
 		
 		if (obj.Xamarin == null) obj.Xamarin = new XamarinSettings();
 
@@ -63,18 +71,18 @@ public class SettingsUtils
 		
 		obj.NuGet.BuildType		= context.Argument<string>("BuildType", obj.NuGet.BuildType);
 		obj.NuGet.PublishType	= context.Argument<string>("PublishType", obj.NuGet.PublishType);
-		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeed", obj.NuGet.FeedUrl);
-		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeedUrl", obj.NuGet.FeedUrl);
+		obj.NuGet.FeedUrl		= GetStringArgument(context, "nugetFeed", obj.NuGet.FeedUrl, true);
+		obj.NuGet.FeedUrl		= GetStringArgument(context, "nugetFeedUrl", obj.NuGet.FeedUrl, true);
 
-		obj.NuGet.FeedApiKey	= context.Argument<string>("nugetApiKey", obj.NuGet.FeedApiKey);
+		obj.NuGet.FeedApiKey	= GetStringArgument(context, "nugetApiKey", obj.NuGet.FeedApiKey, true);
 		
 		obj.NuGet.LibraryMinVersionDependency 		= (context.Argument<string>("dependencyVersion", obj.NuGet.LibraryMinVersionDependency)).Replace(":",".");
 		obj.NuGet.VersionDependencyTypeForLibrary 	= context.Argument<VersionDependencyTypes>("dependencyType", obj.NuGet.VersionDependencyTypeForLibrary);
 
-		if (obj.NuGet.ArtifactsPath.StartsWith("./")) obj.NuGet.ArtifactsPath = obj.NuGet.ArtifactsPath.Replace("./", obj.RootPath);
-		if (obj.NuGet.ArtifactsPath.Contains("[ROOTPATH]")) obj.NuGet.ArtifactsPath = obj.NuGet.ArtifactsPath.Replace("[ROOTPATH]", obj.RootPath);
-		if (obj.NuGet.NuGetConfig.StartsWith("./")) obj.NuGet.NuGetConfig = obj.NuGet.NuGetConfig.Replace("./", obj.RootPath);
-		if (obj.NuGet.NuGetConfig.Contains("[ROOTPATH]")) obj.NuGet.NuGetConfig = obj.NuGet.NuGetConfig.Replace("[ROOTPATH]", obj.RootPath);
+		obj.NuGet.ArtifactsPath	= ExpandSettingsPath(obj.NuGet.ArtifactsPath, obj.RootPath);
+		obj.NuGet.NuSpecPath	= ExpandSettingsPath(obj.NuGet.NuSpecPath, obj.RootPath);
+		obj.NuGet.NuGetConfig	= ExpandSettingsPath(obj.NuGet.NuGetConfig, obj.RootPath);
+		obj.NuGet.FeedUrl		= ExpandSettingsPath(obj.NuGet.FeedUrl, obj.RootPath);
 		
 		return obj;
 	}
@@ -85,6 +93,24 @@ public class SettingsUtils
 						context.Argument<string>(argumentName, argumentName.ToString()) == "1";
 		
 		return result;
+	}
+	
+	private static string GetStringArgument(ICakeContext context, string argumentName, string  defaultValue, bool useDefaultIfEmptyOrNull)
+	{
+		var result = context.Argument<string>(argumentName, defaultValue);
+		
+		if (string.IsNullOrEmpty(result)) return defaultValue;
+		
+		return result;
+	}
+	
+	private static string ExpandSettingsPath(string settingsPath, string rootPath)
+	{
+		if (settingsPath.StartsWith("./")) settingsPath = settingsPath.Replace("./", rootPath);
+		if (settingsPath.StartsWith(".\\")) settingsPath = settingsPath.Replace(".\\", rootPath);
+		if (settingsPath.Contains("[ROOTPATH]")) settingsPath = settingsPath.Replace("[ROOTPATH]", rootPath);
+
+		return settingsPath;
 	}
 	
 	public static void DisplayHelp(ICakeContext context)
@@ -206,7 +232,7 @@ public class BuildSettings
 	{
 		SourcePath = "./source";
 		ArtifactsPath = "./artifacts";
-		BuildOutputPath = "./src/**/[CONFIGURATION]";
+		BuildOutputPath = "./source/**/[CONFIGURATION]";
 		SolutionFileSpec = "*.sln";
 		TreatWarningsAsErrors = false;
 		MaxCpuCount = 0;
@@ -225,7 +251,7 @@ public class BuildSettings
 		get {
 			if (SolutionFileSpec.Contains("/")) return SolutionFileSpec;
 			
-			return string.Format("{0}{1}{2}", SourcePath, SolutionFileSpec.Contains("*") ? "/**/" : "", SolutionFileSpec);
+			return string.Format("{0}{1}{2}", SourcePath, (SourcePath.EndsWith("/") || SolutionFileSpec.StartsWith("/")) ? "" : "/", SolutionFileSpec);
 		}
 	}
 	
@@ -293,8 +319,9 @@ public class NuGetSettings
 	public NuGetSettings()
 	{
 		NuSpecPath = "./nuspec";
-		NuGetConfig = "./.nuget/NuGet.Config";
-		ArtifactsPath = "artifacts/packages";
+		NuGetConfig = "./tools/NuGet.Config";
+		ArtifactsPath = "./artifacts/packages";
+		ArtifactsFileSpec = "*.nupkg";
 		UpdateVersion = false;
 		VersionDependencyTypeForLibrary = VersionDependencyTypes.none;
 		UpdateLibraryDependencies = false;
@@ -309,6 +336,7 @@ public class NuGetSettings
 	public string FeedApiKey {get;set;}
 	public string NuSpecPath {get;set;}
 	public string ArtifactsPath {get;set;}
+	public string ArtifactsFileSpec {get;set;}
 	public bool UpdateVersion {get;set;}
 	public VersionDependencyTypes VersionDependencyTypeForLibrary {get;set;}
 	public bool UpdateLibraryDependencies {get;set;}
@@ -318,13 +346,13 @@ public class NuGetSettings
 	
 	public string NuSpecFileSpec {
 		get {
-			return string.Format("{0}/**/*.nuspec", NuSpecPath);
+			return string.Format("{0}{1}**/*.nuspec", NuSpecPath, (NuSpecPath.EndsWith("/") || NuSpecPath.EndsWith("\\")) ? "" : "/");
 		}
 	}
 
 	public string NuGetPackagesSpec {
 		get {
-			return string.Format("{0}/*.nupkg", ArtifactsPath);
+			return string.Format("{0}{1}{2}", ArtifactsPath, (ArtifactsPath.EndsWith("/") || ArtifactsPath.EndsWith("\\")) ? "" : "/", ArtifactsFileSpec);
 		}
 	}
 	
@@ -339,6 +367,7 @@ public class NuGetSettings
 		context.Information("\tNuSpec Path: {0}", NuSpecPath);
 		context.Information("\tNuSpec File Spec: {0}", NuSpecFileSpec);
 		context.Information("\tArtifacts Path: {0}", ArtifactsPath);
+		context.Information("\tArtifacts Spec: {0}", ArtifactsFileSpec);
 		context.Information("\tNuGet Packages Spec: {0}", NuGetPackagesSpec);
 		context.Information("\tUpdate Version: {0}", UpdateVersion);
 		context.Information("\tUpdate Library Dependencies: {0}", UpdateLibraryDependencies);
