@@ -1,6 +1,6 @@
-#addin "Cake.Json&version=3.0.1"
-#addin "Cake.FileHelpers&version=3.1.0"
-#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
+#addin "nuget:?package=Cake.Json&version=3.0.1"
+#addin "nuget:?package=Cake.FileHelpers&version=3.2.0"
+#addin "nuget:?package=Newtonsoft.Json&version=12.0.2"
 #tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
 
 using Newtonsoft.Json;
@@ -29,8 +29,14 @@ public class VersionUtils
 			case VersionSourceTypes.git:
 				verInfo = LoadVersionFromGit(context);
 				break;
+			case VersionSourceTypes.azuredevops:
+				//verInfo = LoadVersionFromAzureDevOps(context);
+				break;
 			case VersionSourceTypes.tfs:
 				//verInfo = LoadVersionFromTfs(context);
+				break;
+			case VersionSourceTypes.commandline:
+				verInfo = LoadVersionFromCommandLine(context);
 				break;
 		}
 		
@@ -87,7 +93,7 @@ public class VersionUtils
 	
 	private static VersionInfo LoadVersionFromGit(ICakeContext context)
 	{
-		context.Information("Fetching Verson Infop from Git");
+		context.Information("Fetching Verson Info from Git");
 
 		try {
 			GitVersion assertedVersions = context.GitVersion(new GitVersionSettings
@@ -110,6 +116,50 @@ public class VersionUtils
 
 		return null;
 	}
+	
+	private static VersionInfo LoadVersionFromAzureDevOps(ICakeContext context)
+	{
+		context.Information("Fetching Verson Info from Azure DevOps");
+
+		try {
+
+			// var verInfo = new VersionInfo {
+			// 	Major = assertedVersions.Major,
+			// 	Minor = assertedVersions.Minor,
+			// 	Build = assertedVersions.Patch,
+			// 	Semantic = assertedVersions.LegacySemVerPadded,
+			// 	Milestone = string.Concat("v", assertedVersions.MajorMinorPatch)
+			// };
+
+			// context.Information("Calculated Semantic Version: {0}", verInfo.Semantic);
+
+			// return verInfo;
+		} catch {}
+
+		return null;
+	}
+	
+	private static VersionInfo LoadVersionFromCommandLine(ICakeContext context)
+	{
+		context.Information("Fetching Verson Info from Command Line");
+
+		try {
+
+			var verInfo = new VersionInfo {
+				Major = context.Argument<int?>("versionMajor"),
+				Minor = context.Argument<int?>("versionMinor"),
+				Build = context.Argument<int?>("versionBuild"),
+				PreRelease = context.Argument<int?>("versionPreRelease")
+			};
+
+			context.Information("Calculated Semantic Version: {0}", verInfo.Semantic);
+
+			return verInfo;
+		} catch {}
+
+		return null;
+	}
+
 	
 	public static void UpdateVersion(ICakeContext context, Settings settings, VersionInfo verInfo)
 	{
@@ -251,6 +301,6 @@ public class VersionInfo
 		context.Information("\tMilestone: {0}", Milestone);
 		context.Information("\tCake Version: {0}", CakeVersion);
 		
-		if (ReleaseNotes != null) context.Information("\tRelease Notes: \n\t\t{0}", string.Join("\n\t\t",ReleaseNotes));
+		if (ReleaseNotes != null) context.Information("\tRelease Notes: {0}", ReleaseNotes);
 	}
 }

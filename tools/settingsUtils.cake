@@ -1,5 +1,6 @@
-#addin "Cake.Json&version=3.0.1"
-#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
+#addin "nuget:?package=Cake.Json&version=3.0.1"
+#addin "nuget:?package=Newtonsoft.Json&version=12.0.2"
+
 using Newtonsoft.Json;
 
 public class SettingsUtils
@@ -59,6 +60,7 @@ public class SettingsUtils
 		obj.Version.VersionFile 			= obj.VersionFile;
 		obj.Version.AutoIncrementVersion	= GetBoolArgument(context, "autoincrementversion", obj.Version.AutoIncrementVersion);
 		obj.Version.AutoIncrementVersion 	= GetBoolArgument(context, "autoversion", obj.Version.AutoIncrementVersion);
+		obj.Version.LoadFrom				= context.Argument<VersionSourceTypes>("loadVersionFrom", obj.Version.LoadFrom);
 		
 		if (obj.Xamarin == null) obj.Xamarin = new XamarinSettings();
 
@@ -71,10 +73,10 @@ public class SettingsUtils
 		
 		obj.NuGet.BuildType		= context.Argument<string>("BuildType", obj.NuGet.BuildType);
 		obj.NuGet.PublishType	= context.Argument<string>("PublishType", obj.NuGet.PublishType);
-		obj.NuGet.FeedUrl		= GetStringArgument(context, "nugetFeed", obj.NuGet.FeedUrl, true);
-		obj.NuGet.FeedUrl		= GetStringArgument(context, "nugetFeedUrl", obj.NuGet.FeedUrl, true);
+		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeed", obj.NuGet.FeedUrl);
+		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeedUrl", obj.NuGet.FeedUrl);
 
-		obj.NuGet.FeedApiKey	= GetStringArgument(context, "nugetApiKey", obj.NuGet.FeedApiKey, true);
+		obj.NuGet.FeedApiKey	= context.Argument<string>("nugetApiKey", obj.NuGet.FeedApiKey);
 		
 		obj.NuGet.LibraryMinVersionDependency 		= (context.Argument<string>("dependencyVersion", obj.NuGet.LibraryMinVersionDependency)).Replace(":",".");
 		obj.NuGet.VersionDependencyTypeForLibrary 	= context.Argument<VersionDependencyTypes>("dependencyType", obj.NuGet.VersionDependencyTypeForLibrary);
@@ -94,16 +96,7 @@ public class SettingsUtils
 		
 		return result;
 	}
-	
-	private static string GetStringArgument(ICakeContext context, string argumentName, string  defaultValue, bool useDefaultIfEmptyOrNull)
-	{
-		var result = context.Argument<string>(argumentName, defaultValue);
-		
-		if (string.IsNullOrEmpty(result)) return defaultValue;
-		
-		return result;
-	}
-	
+
 	private static string ExpandSettingsPath(string settingsPath, string rootPath)
 	{
 		if (settingsPath.StartsWith("./")) settingsPath = settingsPath.Replace("./", rootPath);
@@ -296,13 +289,13 @@ public class TestSettings
 	{
 		SourcePath = "./tests";
 		ResultsPath = "./tests";
-		AssemblyFileSpec = "*.UnitTests.dll";
+		FileSpec = "*.UnitTests.dll";
 		Framework = TestFrameworkTypes.NUnit3;
 	}
 	
 	public string SourcePath {get;set;}
 	public string ResultsPath {get;set;}
-	public string AssemblyFileSpec {get;set;}
+	public string FileSpec {get;set;}
 	public TestFrameworkTypes Framework {get;set;}
 			
 	public void Display(ICakeContext context)
@@ -310,7 +303,7 @@ public class TestSettings
 		context.Information("Test Settings:");
 		context.Information("\tSource Path: {0}", SourcePath);
 		context.Information("\tResults Path: {0}", ResultsPath);
-		context.Information("\tTest Assemploes File Spec: {0}", AssemblyFileSpec);
+		context.Information("\tTest Assemploes File Spec: {0}", FileSpec);
 	}
 }
 
@@ -327,6 +320,7 @@ public class NuGetSettings
 		UpdateLibraryDependencies = false;
 		LibraryNamespaceBase = null;
 		LibraryMinVersionDependency = null;
+		IncludeSymbols = true;
 	}
 
 	public string BuildType {get;set;}
@@ -391,6 +385,8 @@ public enum VersionSourceTypes {
 	versionfile,
 	assemblyinfo,
 	git,
+	commandline,
+	azuredevops,
 	tfs
 }
 
@@ -399,5 +395,6 @@ public enum TestFrameworkTypes {
 	NUnit2,
 	NUnit3,
 	XUnit,
-	XUnit2
+	XUnit2,
+	DotNetCore
 }

@@ -6,7 +6,7 @@
 #l "tools/versionUtils.cake"
 #l "tools/settingsUtils.cake"
 #tool "nuget:?package=NUnit.ConsoleRunner&version=3.9.0"
-#addin "Cake.Incubator"
+#addin "nuget:?package=Cake.Incubator&version=5.0.1"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -161,12 +161,13 @@ Task("Build")
 					if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
 						dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
 					if (!string.IsNullOrEmpty(versionInfo.ToString()))
-						dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(true));			
-					
+						dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(false));			
+
 					DotNetCoreBuild(solution.ToString(), new DotNetCoreBuildSettings
 													{
 														Configuration = settings.Configuration,
-														MSBuildSettings = dotNetCoreBuildSettings
+														MSBuildSettings = dotNetCoreBuildSettings,
+														Verbosity = DotNetCoreVerbosity.Minimal
 													}
 									);
 					break;
@@ -194,9 +195,53 @@ Task("UnitTest")
 	.IsDependentOn("Build")
 	.Does(() => 
 {
+	switch (settings.Test.Framework)
+	{
+		case TestFrameworkTypes.DotNetCore:
+			RunTarget("UnitTest-DotNetCore");
+
+			break;
+		default: 
+			RunTarget("UnitTest-CLI");
+			
+			break;
+	}
+});
+
+Task("UnitTest-DotNetCore")
+	.Description("Run dotnetcore based unit tests for the solution.")
+	.WithCriteria(settings.ExecuteUnitTest)
+	.Does(() => 
+{
 	// Run all unit tests we can find.
 			
-	var assemplyFilePath = string.Format("{0}/**/bin/{1}/{2}", settings.Test.SourcePath, settings.Configuration, settings.Test.AssemblyFileSpec);
+	var filePath = string.Format("{0}/**/{1}", settings.Test.SourcePath, settings.Test.FileSpec);
+	
+	Information("Unit Test Files: {0}", filePath);
+	
+	var testProjects = GetFiles(filePath);
+	var testSettings = new DotNetCoreTestSettings()
+				{
+					Configuration = settings.Configuration,
+					NoBuild = true
+				};
+
+	foreach(var p in testProjects)
+	{
+		Information("Executing Tests for {0}", p);
+		
+		DotNetCoreTest(p.ToString(), testSettings);
+	}
+});
+
+Task("UnitTest-CLI")
+	.Description("Run unit tests for the solution.")
+	.WithCriteria(settings.ExecuteUnitTest)
+	.Does(() => 
+{
+	// Run all unit tests we can find.
+			
+	var assemplyFilePath = string.Format("{0}/**/bin/{1}/**/{2}", settings.Test.SourcePath, settings.Configuration, settings.Test.FileSpec);
 	
 	Information("Unit Test Files: {0}", assemplyFilePath);
 	
@@ -286,28 +331,35 @@ Task("Nuget-Package-DotNetCore")
 	if (!string.IsNullOrEmpty(versionInfo.ToString()))
 		dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(true));			
 						
-	 var dncps = new DotNetCorePackSettings
-	 {
-		 Configuration = settings.Configuration,
-		 OutputDirectory = artifactsPath,
-		 IncludeSymbols = settings.NuGet.IncludeSymbols,
-		 NoBuild = true,
-		 NoRestore = true,
-		 MSBuildSettings = dotNetCoreBuildSettings		 
-	 };
+	var opts = new DotNetCorePackSettings
+	{
+		Configuration = settings.Configuration,
+		OutputDirectory = artifactsPath,
+		NoBuild = true,
+		NoRestore = true,
+		MSBuildSettings = dotNetCoreBuildSettings
+	};
 
-	 Information("Location of Artifacts: {0}", artifactsPath);
+	if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
+		opts.VersionSuffix = versionInfo.ToVersionSuffix();
 
-	 foreach(var solution in solutions)
-	 {
+	if (settings.NuGet.IncludeSymbols) {
+		opts.ArgumentCustomization = args => args.Append("--include-symbols -p:SymbolPackageFormat=snupkg");
+	}
+
+	Information("Location of Artifacts: {0}", artifactsPath);
+
+	foreach(var solution in solutions)
+	{
 		Information("Building Packages for {0}", solution);
 
 		try {
-			//DotNetCorePack("./src/**/*.csproj", dncps);
-			DotNetCorePack(solution.ToString(), dncps);
+			//DotNetCorePack("./src/**/*.csproj", opts);
+			DotNetCorePack(solution.ToString(), opts);
 		}
 		catch (Exception ex)
 		{
+			Debug(ex.Message);
 			Information("There was a problem with packing some of the projects in {0}", solution);
 		}
 	}
@@ -324,6 +376,19 @@ Task("Nuget-Package-CLI")
 	CreateDirectory(artifactsPath);
 	
 	var nuspecFiles = GetFiles(settings.NuGet.NuSpecFileSpec);
+	
+	var opts = new NuGetPackSettings {
+			Version = versionInfo.ToString(),
+			ReleaseNotes = versionInfo.ReleaseNotes,
+			Properties = nugetProps,
+			OutputDirectory = artifactsPath,
+			Symbols = settings.NuGet.IncludeSymbols
+		};
+		
+	//if (settings.NuGet.IncludeSymbols) {
+	//	opts.ArgumentCustomization = args => args.Append("-Symbols -SymbolPackageFormat snupkg");
+	//}
+	
 	foreach(var nsf in nuspecFiles)
 	{
 		Information("Packaging {0}", nsf);
@@ -336,13 +401,7 @@ Task("Nuget-Package-CLI")
 			VersionUtils.UpdateNuSpecVersionDependency(Context, settings, versionInfo, nsf.ToString());
 		}
 		
-		NuGetPack(nsf, new NuGetPackSettings {
-			Version = versionInfo.ToString(),
-			ReleaseNotes = versionInfo.ReleaseNotes,
-			Symbols = true,
-			Properties = nugetProps,
-			OutputDirectory = artifactsPath
-		});
+		NuGetPack(nsf, opts);
 	}
 });
 
@@ -355,23 +414,31 @@ Task("Nuget-Publish")
 		
 	CreateDirectory(artifactsPath);
 
-	if (settings.NuGet.FeedApiKey.ToLower() == "local")
+	switch (settings.NuGet.FeedApiKey.ToUpper())
 	{
-		settings.NuGet.FeedUrl = Directory(settings.NuGet.FeedUrl).Path.FullPath;
-		//Information("Using Local repository: {0}", settings.NuGet.FeedUrl);
+		case "LOCAL":
+				settings.NuGet.FeedUrl = Directory(settings.NuGet.FeedUrl).Path.FullPath;
+				//Information("Using Local repository: {0}", settings.NuGet.FeedUrl);
+			break;
+		case "NUGETAPIKEY":
+				if (!System.IO.File.Exists("nugetapi.key"))
+				{
+					Error("Could not load nugetapi.key");
+					return;
+				}
+				
+				settings.NuGet.FeedApiKey = System.IO.File.ReadAllText("nugetapi.key");
+			break;
+		case "AzureDevOps":
+		case "VSTS":
+				if (BuildSystem.IsRunningOnAzurePipelinesHosted)
+				{
+					//settings.NuGet.FeedApiKey = EnvironmentVariable("SYSTEM_ACCESSTOKEN");
+					settings.NuGet.FeedApiKey = "AzureDevOps";
+				}
+			break;
 	}
 		
-	if (settings.NuGet.FeedApiKey == "NUGETAPIKEY") 
-	{
-		if (!System.IO.File.Exists("nugetapi.key"))
-		{
-			Error("Could not load nugetapi.key");
-			return;
-		}
-		
-		settings.NuGet.FeedApiKey = System.IO.File.ReadAllText("nugetapi.key");
-	}
-	
 	if (string.IsNullOrEmpty(settings.NuGet.NuGetConfig)) settings.NuGet.NuGetConfig = null;
 
 	switch (settings.NuGet.BuildType)
@@ -401,18 +468,23 @@ Task("Nuget-Publish-DotNetCore")
 
 	Information("\t{0}", string.Join("\n\t", nupkgFiles.Select(x => x.GetFilename().ToString()).ToList()));
 	
-	var dncps = new DotNetCoreNuGetPushSettings
+	var opts = new DotNetCoreNuGetPushSettings
 					{
 						Source = settings.NuGet.FeedUrl,
 						ApiKey = settings.NuGet.FeedApiKey
+						// ,Verbosity = DotNetCoreVerbosity.Detailed
 					};
-
+		
+	//if (settings.NuGet.IncludeSymbols) {
+	//	opts.ArgumentCustomization = args => args.Append("-Symbols -SymbolPackageFormat snupkg");
+	//}		
+		
 	foreach (var n in nupkgFiles)
 	{
-		//Information("Pushing Package: {0}", n);
+		Information("Pushing Package: {0}", n);
 
 		try {
-			DotNetCoreNuGetPush(n.ToString(), dncps);
+			DotNetCoreNuGetPush(n.ToString(), opts);
 		}
 		catch (Exception ex)
 		{
@@ -446,24 +518,24 @@ Task("Nuget-Publish-CLI")
 
 	Information("\t{0}", string.Join("\n\t", nupkgFiles.Select(x => x.GetFilename().ToString()).ToList()));
 	
-	if (BuildSystem.IsRunningOnVSTS)
-	{
-		settings.NuGet.FeedApiKey = EnvironmentVariable("SYSTEM_ACCESSTOKEN");
-	}
+	// if (BuildSystem.IsRunningOnAzurePipelinesHosted)
+	// {
+	// 	settings.NuGet.FeedApiKey = EnvironmentVariable("SYSTEM_ACCESSTOKEN");
+	// }
 
-	var nugetSettings = new NuGetPushSettings {
+	var opts = new NuGetPushSettings {
 				Source = settings.NuGet.FeedUrl,
 				ApiKey = settings.NuGet.FeedApiKey,
 				Verbosity = NuGetVerbosity.Detailed
 			};
-	
+			
 	foreach (var n in nupkgFiles)
 	{
 		Information("Pushing Package: {0}", n);
 
 		try
 		{		
-			NuGetPush(n, nugetSettings);
+			NuGetPush(n, opts);
 		}
 		catch (Exception ex)
 		{
