@@ -25,18 +25,19 @@ namespace Invisionware
 	public static class TypeExtensions
 	{
 		/// <summary>
-		/// Attempts to retrieve .
+		/// Attempts to retrieve the attribute from the current type based on the value selector function.
 		/// </summary>
 		/// <typeparam name="TAttribute">The type of the t attribute.</typeparam>
 		/// <typeparam name="TValue">The type of the t value.</typeparam>
 		/// <param name="type">The type.</param>
 		/// <param name="valueSelector">The value selector.</param>
-		/// <example>typeof(SettingsAttribute).GetAttributeValue&lt;string&gt;((SettingsAttribute s) => s.Name); </example>
+		/// <param name="includeInherited">if set to <c>true</c> [include inherited].</param>
 		/// <returns>TValue.</returns>
-		public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Func<TAttribute, TValue> valueSelector)
+		/// <example>typeof(SettingsAttribute).GetAttributeValue&lt;string&gt;((SettingsAttribute s) =&gt; s.Name); </example>
+		public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Func<TAttribute, TValue> valueSelector, bool includeInherited = true)
 			where TAttribute : Attribute
 		{
-			var att = type.GetAttributeOfType<TAttribute>().FirstOrDefault();
+			var att = type.GetAttributeOfType<TAttribute>(includeInherited).FirstOrDefault();
 
 			return att != null ? valueSelector(att) : default(TValue);
 		}
@@ -44,7 +45,9 @@ namespace Invisionware
 		/// <summary>
 		/// Gets the speciifc attribute on the type
 		/// </summary>
-		/// <typeparam name="TAttribute"></typeparam>
+		/// <typeparam name="TAttribute">The type of the t attribute.</typeparam>
+		/// <param name="type">The type.</param>
+		/// <param name="includeInherited">if set to <c>true</c> [include inherited].</param>
 		/// <returns>The attribute.</returns>
 		public static IList<TAttribute> GetAttributeOfType<TAttribute>(this Type type, bool includeInherited = true) where TAttribute : System.Attribute
 		{
@@ -67,14 +70,42 @@ namespace Invisionware
 		}
 
 		/// <summary>
+		/// Gets the properties with attribute.
+		/// </summary>
+		/// <typeparam name="TAttribute">The type of the t attribute.</typeparam>
+		/// <param name="type">The type.</param>
+		/// <param name="includeInherited">if set to <c>true</c> [include inherited].</param>
+		/// <returns>IList&lt;PropertyInfo&gt;.</returns>
+		public static IList<PropertyInfo> GetPropertiesWithAttribute<TAttribute>(this Type type, bool includeInherited) where TAttribute : System.Attribute
+		{
+			var results = type.GetProperties().Where(x => x.GetCustomAttributes(typeof(TAttribute), true).Any())?.ToList();
+
+			if (!includeInherited) return results;
+
+			var nestedResults = type.GetInterfaces().SelectMany(x => x.GetProperties().Where(y => y.GetCustomAttributes(typeof(TAttribute), true).Any()))?.ToList();
+
+			if (results == null)
+			{
+				results = nestedResults;
+			} 
+			else if (nestedResults != null && nestedResults.Any())
+			{
+				results.AddRange(nestedResults);
+			}
+
+			return results;
+		}
+
+		/// <summary>
 		/// Determines if the specified attribute exists on the specified type
 		/// </summary>
 		/// <typeparam name="TAttribute">The type of the t attribute.</typeparam>
 		/// <param name="type">The type.</param>
+		/// <param name="includeInherited">if set to <c>true</c> [include inherited].</param>
 		/// <returns><c>true</c> if the attribute exists on the type, <c>false</c> otherwise.</returns>
-		public static bool AttributeExists<TAttribute>(this Type type) where TAttribute : System.Attribute
+		public static bool AttributeExists<TAttribute>(this Type type, bool includeInherited = true) where TAttribute : System.Attribute
 		{
-			return type.GetAttributeOfType<TAttribute>() != null;
+			return type.GetAttributeOfType<TAttribute>(includeInherited) != null;
 		}
 
 		/// <summary>

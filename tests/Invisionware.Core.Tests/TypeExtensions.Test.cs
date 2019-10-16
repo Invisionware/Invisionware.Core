@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Invisionware.Core.Tests
@@ -9,27 +10,53 @@ namespace Invisionware.Core.Tests
 		{
 		}
 
-		[Test]
-		public void GetAttributeValueTest()
-		{
-			Assert.Pass();
-		}
+		//[Test]
+		//public void GetAttributeValueTest()
+		//{
+		//	var c = new CClass1();
+		//	var t = c.GetType();
+
+		//}
 
 		[Test]
 		public void GetAttributeOfTypeTest()
 		{
-			Assert.Pass();
+			var c = new CClass1();
+			var t = c.GetType();
+
+			var results = t.GetAttributeOfType<Attribute1>(true);
+
+			results.Should().NotBeNullOrEmpty();
+			results.Should().HaveCountGreaterOrEqualTo(1);
+		}
+
+		[Test]
+		public void GetPropertiesWithAttributeTest()
+		{
+			var c = new CClass1();
+			var t = c.GetType();
+
+			var results = t.GetPropertiesWithAttribute<Attribute1>(true);
+
+			results.Should().NotBeNullOrEmpty();
+			results.Should().HaveCountGreaterOrEqualTo(2);
 		}
 
 		[Test]
 		public void AttributeExistsTest()
 		{
-			Assert.Pass();
+			var c = new CClass1();
+			var t = c.GetType();
+
+			t.AttributeExists<Attribute1>().Should().BeTrue();
 		}
 
 		public void GetPropertiesTest()
 		{
-			Assert.Pass();
+			var c = new CClass1();
+			var t = c.GetType();
+
+			t.GetProperties().Should().NotBeNull();
 		}
 	}
 }
