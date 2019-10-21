@@ -22,8 +22,8 @@
 	"test": {
 		"SourcePath": "./tests",
 		"ResultsPath": "./artifacts",
-		"AssemblyFileSpec": "*.UnitTests.dll",
-		"Framework": "NUnit3"
+		"FileSpec": "*.csprj",
+		"Framework": "dotnetcore"
 	},
 	"nuget": {
 		"BuildType": "dotnetcore",
