@@ -29,6 +29,8 @@ steps:
     script: 'build.cake'
     target: 'Nuget-Package'
     verbosity: 'Verbose'
+    arguments: '-ArtifactsPath='''$(Build.ArtifactStagingDirectory)'''
+
 - task: VSBuild@1
   displayName: 'Build Solution'
   enabled: false
@@ -55,6 +57,7 @@ steps:
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
+  enabled: false
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/artifacts/packages/*.*'
     ArtifactName: 'drop'
