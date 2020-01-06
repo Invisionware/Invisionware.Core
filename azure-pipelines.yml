@@ -27,7 +27,7 @@ steps:
   displayName: 'Build Solution: Cake'
   inputs:
     script: 'build.cake'
-    target: 'Package'
+    target: 'Nuget-Package'
     verbosity: 'Verbose'
 - task: VSBuild@1
   displayName: 'Build Solution'
