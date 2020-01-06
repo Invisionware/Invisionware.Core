@@ -29,11 +29,6 @@ steps:
     clean: true
     createLogFile: true
 
-- task: VisualStudioTestPlatformInstaller@1
-  inputs:
-    packageFeedSelector: 'nugetOrg'
-    versionSelector: 'latestPreRelease'
-
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
@@ -41,8 +36,7 @@ steps:
       **\*test*.dll
       !**\*TestAdapter.dll
       !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    vsTestVersion: 'toolsInstaller'
+    searchFolder: '$(System.DefaultWorkingDirectory)\tests'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
