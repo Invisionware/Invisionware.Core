@@ -16,12 +16,15 @@ variables:
 
 steps:
 - task: NuGetToolInstaller@1
+  displayName: 'Install Nuget Tools'
 
 - task: NuGetCommand@2
+  displayName: 'Restore nuget packages'
   inputs:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
+  displayName: 'Build Solution'
   inputs:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
@@ -30,17 +33,20 @@ steps:
     createLogFile: true
 
 - task: DotNetCoreCLI@2
+  displayName: 'NUnit Tests: Run'
   inputs:
     command: 'test'
-    projects: '$(System.DefaultWorkingDirectory)\tests\**.csproj'
+    projects: '$(System.DefaultWorkingDirectory)\tests\**\*.csproj'
 
 - task: PublishTestResults@2
+  displayName: 'NUnit Tests: Publish results'
   inputs:
     testResultsFormat: 'NUnit'
     testResultsFiles: 'tests/**/TEST-*.xml'
     mergeTestResults: true
 
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
