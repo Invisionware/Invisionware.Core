@@ -59,6 +59,6 @@ steps:
   displayName: 'Publish Artifacts'
   enabled: false
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/packages/*.*'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory'
     ArtifactName: 'drop'
     publishLocation: 'Container'
