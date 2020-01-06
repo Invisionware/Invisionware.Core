@@ -56,6 +56,6 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
   inputs:
-    PathtoPublish: '$(Build.StagingDirectory)/artifacts/**/*.nupkg'
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/**/*.nupkg'
     ArtifactName: 'drop'
     publishLocation: 'Container'
