@@ -1,19 +1,61 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- task: NuGetToolInstaller@1
+  displayName: 'Install Nuget Tools'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: NuGetCommand@2
+  displayName: 'Restore nuget packages'
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: Cake@0
+  displayName: 'Build Solution: Cake'
+  inputs:
+    script: 'build.cake'
+    target: 'Nuget-Package'
+    verbosity: 'Verbose'
+- task: VSBuild@1
+  displayName: 'Build Solution'
+  enabled: false
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    clean: true
+    createLogFile: true
+
+- task: DotNetCoreCLI@2
+  enabled: false
+  displayName: 'NUnit Tests: Run'
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+
+- task: PublishTestResults@2
+  displayName: 'NUnit Tests: Publish results'
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: 'tests/**/TEST-*.xml'
+    mergeTestResults: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/packages/*.*'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
