@@ -23,8 +23,15 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: Cake@0
+  displayName: 'Build Solution: Cake'
+  inputs:
+    script: 'build.cake'
+    target: 'Package'
+    verbosity: 'Verbose'
 - task: VSBuild@1
   displayName: 'Build Solution'
+  enabled: false
   inputs:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
@@ -33,6 +40,7 @@ steps:
     createLogFile: true
 
 - task: DotNetCoreCLI@2
+  enabled: false
   displayName: 'NUnit Tests: Run'
   inputs:
     command: 'test'
@@ -40,7 +48,6 @@ steps:
 
 - task: PublishTestResults@2
   displayName: 'NUnit Tests: Publish results'
-  enabled: false
   inputs:
     testResultsFormat: 'NUnit'
     testResultsFiles: 'tests/**/TEST-*.xml'
@@ -49,6 +56,6 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.StagingDirectory)/artifacts/**/*.nupkg'
     ArtifactName: 'drop'
     publishLocation: 'Container'
