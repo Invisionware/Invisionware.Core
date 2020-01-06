@@ -29,16 +29,16 @@ steps:
     clean: true
     createLogFile: true
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)\tests'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'test'
+    projects: '$(System.DefaultWorkingDirectory)\tests\**.csproj'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: 'tests/**/TEST-*.xml'
+    mergeTestResults: true
 
 - task: PublishBuildArtifacts@1
   inputs:
