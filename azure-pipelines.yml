@@ -29,7 +29,7 @@ steps:
     script: 'build.cake'
     target: 'Nuget-Package'
     verbosity: 'Verbose'
-    arguments: '-ArtifactsPath=$(Build.ArtifactStagingDirectory)'
+    arguments: '-ArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration)'
 
 - task: VSBuild@1
   displayName: 'Build Solution'
