@@ -75,6 +75,11 @@ public class SettingsUtils
 		obj.NuGet.PublishType	= context.Argument<string>("PublishType", obj.NuGet.PublishType);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeed", obj.NuGet.FeedUrl);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeedUrl", obj.NuGet.FeedUrl);
+		obj.NuGet.ArtifactsPath	= context.Argument<string>("Artifacts", obj.NuGet.ArtifactsPath);
+		obj.NuGet.ArtifactsPath	= context.Argument<string>("ArtifactsPath", obj.NuGet.ArtifactsPath);
+		obj.NuGet.NuSpecPath	= context.Argument<string>("NuSpec", obj.NuGet.NuSpecPath);
+		obj.NuGet.NuSpecPath	= context.Argument<string>("NuSpecPath", obj.NuGet.NuSpecPath);
+		obj.NuGet.NuGetConfig	= context.Argument<string>("NuGetConfig", obj.NuGet.NuGetConfig);
 
 		obj.NuGet.FeedApiKey	= context.Argument<string>("nugetApiKey", obj.NuGet.FeedApiKey);
 		
@@ -104,6 +109,11 @@ public class SettingsUtils
 		if (settingsPath.Contains("[ROOTPATH]")) settingsPath = settingsPath.Replace("[ROOTPATH]", rootPath);
 
 		return settingsPath;
+	}
+
+	private static string ExpandEnvironmentVariables(ICakeContext context, string variableName, string defaultValue)
+	{		
+		return null;
 	}
 	
 	public static void DisplayHelp(ICakeContext context)
@@ -303,7 +313,7 @@ public class TestSettings
 		context.Information("Test Settings:");
 		context.Information("\tSource Path: {0}", SourcePath);
 		context.Information("\tResults Path: {0}", ResultsPath);
-		context.Information("\tTest Assemploes File Spec: {0}", FileSpec);
+		context.Information("\tTest File Spec: {0}", FileSpec);
 	}
 }
 
