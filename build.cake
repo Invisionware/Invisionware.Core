@@ -194,6 +194,12 @@ Task("UnitTest")
 	.IsDependentOn("Build")
 	.Does(() => 
 {
+
+	if (!DirectoryExists(settings.Test.ResultsPath))
+	{
+		CreateDirectory(settings.Test.ResultsPath);
+	}
+
 	switch (settings.Test.Framework)
 	{
 		case TestFrameworkTypes.DotNetCore:
@@ -222,6 +228,9 @@ Task("UnitTest-DotNetCore")
 	var testSettings = new DotNetCoreTestSettings()
 				{
 					Configuration = settings.Configuration,
+					Logger = "trx",
+					ResultsDirectory = settings.Test.ResultsPath,
+					//VSTestReportPath = settings.Test.ResultsPath,
 					NoBuild = true
 				};
 

@@ -1,1 +1,11 @@
-{"Major":1,"Minor":0,"Build":2,"PreRelease":4,"ReleaseNotes":[],"Semantic":null,"Milestone":null,"CakeVersion":"0.33.0.0","IsPreRelease":true}
+{
+  "Major": 1,
+  "Minor": 0,
+  "Build": 2,
+  "PreRelease": 4,
+  "ReleaseNotes": [],
+  "Semantic": null,
+  "Milestone": null,
+  "CakeVersion": "0.33.0.0",
+  "IsPreRelease": true
+}
