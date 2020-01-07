@@ -66,20 +66,19 @@ stages:
               ArtifactName: 'drop'
               publishLocation: 'Container'
       
-  - stage: nuget_deploy
+  - stage: nuget_deploy  
     jobs:
       - deployment: nuget_deploy
         pool: 
           vmImage: 'windows-latest'
-        environment: nuget
-        strategy:
-          runOnce:
-            deploy:
+        environment: nuget        
+        strategy:        
+          runOnce:          
+            deploy:            
               steps:
-                - task: Cake@0
-                  displayName: 'Publish Artifacts: Cake'
+                - task: NuGetCommand@2
                   inputs:
-                    script: 'build.cake'
-                    target: 'Nuget-Publish'
-                    verbosity: 'Verbose'
-                    arguments: '-NugetArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration) -skipBuild=1 -skipTest=1 -skipPackage=1' 
+                    command: 'push'
+                    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+                    nuGetFeedType: 'external'
+                    publishFeedCredentials: 'Github Connection'
