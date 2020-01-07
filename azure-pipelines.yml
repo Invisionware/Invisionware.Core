@@ -29,7 +29,7 @@ steps:
     script: 'build.cake'
     target: 'Nuget-Package'
     verbosity: 'Verbose'
-    arguments: '-ArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration)'
+    arguments: '-NugetArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration)'
 
 - task: VSBuild@1
   displayName: 'Build Solution'
@@ -50,6 +50,7 @@ steps:
 
 - task: PublishTestResults@2
   displayName: 'NUnit Tests: Publish results'
+  enabled: false
   inputs:
     testResultsFormat: 'NUnit'
     testResultsFiles: 'tests/**/TEST-*.xml'

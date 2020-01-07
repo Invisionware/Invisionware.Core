@@ -230,7 +230,6 @@ Task("UnitTest-DotNetCore")
 					Configuration = settings.Configuration,
 					Logger = "trx",
 					ResultsDirectory = settings.Test.ResultsPath,
-					//VSTestReportPath = settings.Test.ResultsPath,
 					NoBuild = true
 				};
 

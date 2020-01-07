@@ -1,5 +1,5 @@
 #addin "nuget:?package=Cake.Json&version=4.0.0"
-#addin "nuget:?package=Newtonsoft.Json&version=11.0.2"
+#addin "nuget:?package=Newtonsoft.Json&version=12.0.3"
 
 using Newtonsoft.Json;
 
@@ -71,15 +71,15 @@ public class SettingsUtils
 
 		if (obj.NuGet == null) obj.NuGet = new NuGetSettings();
 		
-		obj.NuGet.BuildType		= context.Argument<string>("BuildType", obj.NuGet.BuildType);
-		obj.NuGet.PublishType	= context.Argument<string>("PublishType", obj.NuGet.PublishType);
+		obj.NuGet.BuildType		= context.Argument<string>("NugetBuildType", obj.NuGet.BuildType);
+		obj.NuGet.PublishType	= context.Argument<string>("NugetPublishType", obj.NuGet.PublishType);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeed", obj.NuGet.FeedUrl);
 		obj.NuGet.FeedUrl		= context.Argument<string>("nugetFeedUrl", obj.NuGet.FeedUrl);
-		obj.NuGet.ArtifactsPath	= context.Argument<string>("Artifacts", obj.NuGet.ArtifactsPath);
-		obj.NuGet.ArtifactsPath	= context.Argument<string>("ArtifactsPath", obj.NuGet.ArtifactsPath);
-		obj.NuGet.NuSpecPath	= context.Argument<string>("NuSpec", obj.NuGet.NuSpecPath);
-		obj.NuGet.NuSpecPath	= context.Argument<string>("NuSpecPath", obj.NuGet.NuSpecPath);
-		obj.NuGet.NuGetConfig	= context.Argument<string>("NuGetConfig", obj.NuGet.NuGetConfig);
+		obj.NuGet.ArtifactsPath	= context.Argument<string>("NugetArtifacts", obj.NuGet.ArtifactsPath);
+		obj.NuGet.ArtifactsPath	= context.Argument<string>("NugetArtifactsPath", obj.NuGet.ArtifactsPath);
+		obj.NuGet.NuSpecPath	= context.Argument<string>("NugetNuspec", obj.NuGet.NuSpecPath);
+		obj.NuGet.NuSpecPath	= context.Argument<string>("NugetNuspecPath", obj.NuGet.NuSpecPath);
+		obj.NuGet.NuGetConfig	= context.Argument<string>("NugetConfig", obj.NuGet.NuGetConfig);
 
 		obj.NuGet.FeedApiKey	= context.Argument<string>("nugetApiKey", obj.NuGet.FeedApiKey);
 		
@@ -91,6 +91,12 @@ public class SettingsUtils
 		obj.NuGet.NuGetConfig	= ExpandSettingsPath(obj.NuGet.NuGetConfig, obj.RootPath);
 		obj.NuGet.FeedUrl		= ExpandSettingsPath(obj.NuGet.FeedUrl, obj.RootPath);
 		
+		if (obj.Test == null) obj.Test = new TestSettings();
+
+		obj.Test.SourcePath 	= context.Argument<string>("TestSourcePath", obj.Test.SourcePath);
+		obj.Test.ResultsPath 	= context.Argument<string>("TestResultsPath", obj.Test.ResultsPath);
+		obj.Test.FileSpec 		= context.Argument<string>("TestFileSpec", obj.Test.FileSpec);
+
 		return obj;
 	}
 		
