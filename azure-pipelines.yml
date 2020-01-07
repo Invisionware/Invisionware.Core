@@ -79,6 +79,6 @@ stages:
                 - task: NuGetCommand@2
                   inputs:
                     command: 'push'
-                    packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;$(Pipeline.Workspace)/**/*.snupkg'
+                    packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.snupkg'
                     nuGetFeedType: 'external'
                     publishFeedCredentials: 'Github Connection'
