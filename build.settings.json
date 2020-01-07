@@ -1,7 +1,7 @@
 {
 	"version": {
 		"VersionFile": "./build.version.json",
-		"AssemblyInfoFile": "./src/AssemblyInfo.Shared.cs",
+		"AssemblyInfoFile": "",
 		"LoadFrom": "versionfile",
 		"AutoIncrementVersion": false
 	},

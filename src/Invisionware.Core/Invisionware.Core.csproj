@@ -5,13 +5,21 @@
 		<PackageId>Invisionware.Core</PackageId>
 		<Authors>Invisionware</Authors>
 		<PackageProjectUrl>https://github.com/Invisionware/Invisionware.Core</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Invisionware/Invisionware.Core</RepositoryUrl>
+		<RepositoryType>github</RepositoryType>
+		<PackageIcon>logo.png</PackageIcon>
 		<license>Apache-2.0</license>
-		<PackageIconUrl>https://github.com/Invisionware/Invisionware.Core/raw/master/logo.png</PackageIconUrl>
-		<Description>This package implements the core invisionware framework</Description>
-		<PackageReleaseNotes />
-		<Copyright>Copyright © 2018 Invisionware</Copyright>
-		<PackageTags>Invisionware extensions</PackageTags>
+		<Copyright>Copyright © 2020 Invisionware</Copyright>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Description>This package implements the core invisionware framework</Description>
+		<PackageTags>Invisionware extensions</PackageTags>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
