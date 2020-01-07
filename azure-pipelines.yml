@@ -1,69 +1,85 @@
-# .NET Desktop
-# Build and run tests for .NET Desktop or Windows classic desktop solutions.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
-
 trigger:
 - master
 
-pool:
-  vmImage: 'windows-latest'
+stages:
+  - stage: build
+    jobs:
+      - job: Build
+        pool:
+          vmImage: 'windows-latest'
 
-variables:
-  - group: Invisionware.Core
-  - name: solution
-    value: '**/*.sln'
-  - name: buildPlatform
-    value: 'Any CPU'
-  - name: buildConfiguration
-    value: 'Release'
-  - name: buildTarget
-    value: 'Nuget-Package'
+        variables:
+          - group: Invisionware.Core
+          - name: solution
+            value: '**/*.sln'
+          - name: buildPlatform
+            value: 'Any CPU'
+          - name: buildConfiguration
+            value: 'Release'
+          - name: buildTarget
+            value: 'Nuget-Package'
+        steps:
+          - task: NuGetToolInstaller@1
+            displayName: 'Install Nuget Tools'
 
-steps:
-- task: NuGetToolInstaller@1
-  displayName: 'Install Nuget Tools'
+          - task: NuGetCommand@2
+            displayName: 'Restore nuget packages'
+            inputs:
+              restoreSolution: '$(solution)'
 
-- task: NuGetCommand@2
-  displayName: 'Restore nuget packages'
-  inputs:
-    restoreSolution: '$(solution)'
+          - task: replacetokens@3
+            displayName: 'Transform appsetings.json'
+            inputs:
+              rootDirectory: '$(Build.SourcesDirectory)/tests'
+              targetFiles: '**/appSettings.json'
+              encoding: 'auto'
+              writeBOM: true
+              escapeType: 'json'
+              verbosity: 'detailed'
+              actionOnMissing: 'warn'
+              keepToken: false
+              tokenPrefix: '#{'
+              tokenSuffix: '}#'
 
-- task: replacetokens@3
-  displayName: 'Transform appsetings.json'
-  inputs:
-    rootDirectory: '$(Build.SourcesDirectory)/tests'
-    targetFiles: '**/appSettings.json'
-    encoding: 'auto'
-    writeBOM: true
-    escapeType: 'json'
-    verbosity: 'detailed'
-    actionOnMissing: 'warn'
-    keepToken: false
-    tokenPrefix: '#{'
-    tokenSuffix: '}#'
+          - task: Cake@0
+            displayName: 'Build Solution: Cake'
+            inputs:
+              script: 'build.cake'
+              target: '$(buildTarget)'
+              verbosity: 'Verbose'
+              arguments: '-NugetArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration)' 
 
-- task: Cake@0
-  displayName: 'Build Solution: Cake'
-  inputs:
-    script: 'build.cake'
-    target: '$(buildTarget)'
-    verbosity: 'Verbose'
-    arguments: '-NugetArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration)' 
+          - task: PublishTestResults@2
+            displayName: 'Unit Tests: Publish results'
+            enabled: true
+            inputs:
+              testResultsFormat: 'VSTest'
+              testResultsFiles: '$(Build.SourcesDirectory)/artifacts/tests/**/*.trx'
+              mergeTestResults: true
+              failTaskOnFailedTests: true
 
-- task: PublishTestResults@2
-  displayName: 'Unit Tests: Publish results'
-  enabled: true
-  inputs:
-    testResultsFormat: 'VSTest'
-    testResultsFiles: '$(Build.SourcesDirectory)/artifacts/tests/**/*.trx'
-    mergeTestResults: true
-    failTaskOnFailedTests: true
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifacts'
-  enabled: true
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Artifacts'
+            enabled: true
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+      
+  - stage: nuget_deploy
+    jobs:
+      - deployment: nuget_deploy
+        pool: 
+          vmImage: 'windows-latest'
+        environment: nuget
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: Cake@0
+                  displayName: 'Publish Artifacts: Cake'
+                  inputs:
+                    script: 'build.cake'
+                    target: 'Nuget-Publish'
+                    verbosity: 'Verbose'
+                    arguments: '-NugetArtifactsPath=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration) -skipBuild=1 -skipTest=1 -skipPackage=1' 
