@@ -1,5 +1,5 @@
-#addin "nuget:?package=Cake.Json&version=3.0.1"
-#addin "nuget:?package=Newtonsoft.Json&version=12.0.2"
+#addin "nuget:?package=Cake.Json&version=4.0.0"
+#addin "nuget:?package=Newtonsoft.Json&version=11.0.2"
 
 using Newtonsoft.Json;
 

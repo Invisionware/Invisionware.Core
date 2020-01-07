@@ -1,7 +1,7 @@
-#addin "nuget:?package=Cake.Json&version=3.0.1"
-#addin "nuget:?package=Cake.FileHelpers&version=3.2.0"
-#addin "nuget:?package=Newtonsoft.Json&version=12.0.2"
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
+#addin "nuget:?package=Cake.Json&version=4.0.0"
+#addin "nuget:?package=Newtonsoft.Json&version=11.0.2"
+#addin "nuget:?package=Cake.FileHelpers&version=3.2.1"
+#tool "nuget:?package=GitVersion.CommandLine&version=5.1.3"
 
 using Newtonsoft.Json;
 
@@ -172,7 +172,7 @@ public class VersionUtils
 		{	
 			context.Information("Updating Version File {0}", settings.Version.VersionFile);
 			
-			context.SerializeJsonToFile(settings.Version.VersionFile, verInfo);
+			context.SerializeJsonToPrettyFile(settings.Version.VersionFile, verInfo);
 		}
 		
 		if (!string.IsNullOrEmpty(settings.Version.AssemblyInfoFile) && context.FileExists(settings.Version.AssemblyInfoFile))
@@ -301,6 +301,6 @@ public class VersionInfo
 		context.Information("\tMilestone: {0}", Milestone);
 		context.Information("\tCake Version: {0}", CakeVersion);
 		
-		if (ReleaseNotes != null) context.Information("\tRelease Notes: {0}", ReleaseNotes);
+		if (ReleaseNotes != null && ReleaseNotes.Length > 0) context.Information("\tRelease Notes: {0}", ReleaseNotes);
 	}
 }

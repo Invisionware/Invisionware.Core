@@ -1,12 +1,11 @@
-#load "tools/settingsUtils.cake"
 ///////////////////////////////////////////////////////////////////////////////
 // Directives
 ///////////////////////////////////////////////////////////////////////////////
 
 #l "tools/versionUtils.cake"
 #l "tools/settingsUtils.cake"
-#tool "nuget:?package=NUnit.ConsoleRunner&version=3.9.0"
-#addin "nuget:?package=Cake.Incubator&version=5.0.1"
+#addin "nuget:?package=Cake.Incubator&version=5.1.0"
+#tool "nuget:?package=NUnit.ConsoleRunner&version=3.10.0"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
