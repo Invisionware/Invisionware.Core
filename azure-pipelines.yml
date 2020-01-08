@@ -5,7 +5,7 @@ stages:
   - stage: build
     jobs:
       - job: Build
-        pool: Default
+        pool: Personal-Docker
 
         variables:
           - group: Invisionware.Core
@@ -68,7 +68,7 @@ stages:
   - stage: nuget_deploy  
     jobs:
       - deployment: nuget_deploy
-        pool: Default
+        pool: Personal-Docker
         environment: nuget        
         strategy:        
           runOnce:          
