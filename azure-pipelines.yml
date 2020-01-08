@@ -5,8 +5,7 @@ stages:
   - stage: build
     jobs:
       - job: Build
-        pool:
-          vmImage: 'windows-latest'
+        pool: Default
 
         variables:
           - group: Invisionware.Core
@@ -69,8 +68,7 @@ stages:
   - stage: nuget_deploy  
     jobs:
       - deployment: nuget_deploy
-        pool: 
-          vmImage: 'windows-latest'
+        pool: Default
         environment: nuget        
         strategy:        
           runOnce:          
