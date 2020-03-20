@@ -1,4 +1,6 @@
 #addin "nuget:?package=Cake.Json&version=4.0.0"
+#addin "nuget:?package=Cake.Incubator&version=5.1.0"
+#addin "nuget:?package=Cake.GitVersioning&version=3.0.25"
 #addin "nuget:?package=Newtonsoft.Json&version=12.0.3"
 #addin "nuget:?package=Cake.FileHelpers&version=3.2.1"
 #tool "nuget:?package=GitVersion.CommandLine&version=5.1.3"
@@ -96,23 +98,32 @@ public class VersionUtils
 		context.Information("Fetching Verson Info from Git");
 
 		try {
-			GitVersion assertedVersions = context.GitVersion(new GitVersionSettings
-			{
-				OutputType = GitVersionOutput.Json,
-			});
+			// GitVersion gitVersionInfo = context.GitVersion(new GitVersionSettings
+			// {
+			// 	OutputType = GitVersionOutput.Json,
+			// });
+
+			var gitVersionInfo = context.GitVersioningGetVersion();
+
+			//context.Information("Git Version Details:\n{0}", gitVersionInfo.Dump());
 
 			var verInfo = new VersionInfo {
-				Major = assertedVersions.Major,
-				Minor = assertedVersions.Minor,
-				Build = assertedVersions.Patch,
-				Semantic = assertedVersions.LegacySemVerPadded,
-				Milestone = string.Concat("v", assertedVersions.MajorMinorPatch)
+				Major = gitVersionInfo.VersionMajor,
+				Minor = gitVersionInfo.VersionMinor,
+				Build = gitVersionInfo.BuildNumber,
+				//Suffix = gitVersionInfo.PreReleaseTag,
+				//PreRelease = gitVersionInfo.PrereleaseVersion,
+				Semantic = gitVersionInfo.SemVer2,
+				Milestone = string.Concat("v", gitVersionInfo.VersionRevision)
 			};
 
-			context.Information("Calculated Semantic Version: {0}", verInfo.Semantic);
+			//context.Information("Version Info:\n{0}", verInfo.Dump());
+
+			//context.Information(context.GitVersioningGetVersion().Dump());
 
 			return verInfo;
-		} catch {}
+		} catch {
+		}
 
 		return null;
 	}
@@ -146,10 +157,12 @@ public class VersionUtils
 		try {
 
 			var verInfo = new VersionInfo {
-				Major = context.Argument<int?>("versionMajor"),
-				Minor = context.Argument<int?>("versionMinor"),
-				Build = context.Argument<int?>("versionBuild"),
-				PreRelease = context.Argument<int?>("versionPreRelease")
+				Major = context.Argument<int?>("versionMajor", 0),
+				Minor = context.Argument<int?>("versionMinor", 0),
+				Build = context.Argument<int?>("versionBuild", 0),
+				PreRelease = context.Argument<int?>("versionPreRelease", 0),
+				Suffix = context.Argument<string>("versionSuffix", ""),
+				Semantic = context.Argument<string>("versionSem", "")
 			};
 
 			context.Information("Calculated Semantic Version: {0}", verInfo.Semantic);
@@ -248,6 +261,8 @@ public class VersionInfo
 	public int? Minor {get;set;}
 	[Newtonsoft.Json.JsonProperty("build")]
 	public int? Build {get;set;}
+	[Newtonsoft.Json.JsonProperty("suffix")]
+	public string Suffix {get;set;}
 	[Newtonsoft.Json.JsonProperty("preRelease")]
 	public int? PreRelease {get;set;}
 	[Newtonsoft.Json.JsonProperty("releaseNotes")]
@@ -261,12 +276,16 @@ public class VersionInfo
 	public string CakeVersion {get;set;}
 	
 	[Newtonsoft.Json.JsonIgnore]
-	public bool IsPreRelease { get { return PreRelease != null && PreRelease != 0; } }
+	public bool IsPreRelease { get { return (PreRelease != null && PreRelease != 0); } }
+
+	[Newtonsoft.Json.JsonIgnore]
+	public bool IsSemantic { get { return !string.IsNullOrEmpty(Semantic); } }
 
 	public string ToString(bool includePreRelease = true) 
 	{ 
-		var str = string.Format("{0:#0}.{1:#0}.{2:#0}", Major, Minor, Build);
-		if (IsPreRelease && includePreRelease) str += string.Format("-pre{0:00}", PreRelease);
+		if (IsSemantic) return Semantic;
+
+		var str = string.Format("{0}{1}", ToVersionPrefix(), includePreRelease ? ToVersionSuffix() : "");
 
 		return str; 
 	}
@@ -282,10 +301,12 @@ public class VersionInfo
 	
 	public string ToVersionSuffix()
 	{
-		if (!IsPreRelease) return string.Empty;
+		if (!IsPreRelease || IsSemantic) return string.Empty;
 		
-		var str = string.Format("pre{0:00}", PreRelease);
-		
+		if (string.IsNullOrEmpty(Suffix)) Suffix = "pre";
+
+		var str = string.Format("-{0}{1:00}", Suffix, PreRelease);
+
 		return str;
 	}
 	
@@ -295,8 +316,9 @@ public class VersionInfo
 		context.Information("\tMajor: {0}", Major);
 		context.Information("\tMinor: {0}", Minor);
 		context.Information("\tBuild: {0}", Build);
+		context.Information("\tSuffix: {0}", ToVersionSuffix());
 		context.Information("\tIs PreRelease: {0}", IsPreRelease);
-		context.Information("\tPreRelease: {0}", PreRelease);
+		context.Information("\tIs Semantic: {0}", IsSemantic);
 		context.Information("\tSemantic: {0}", Semantic);
 		context.Information("\tMilestone: {0}", Milestone);
 		context.Information("\tCake Version: {0}", CakeVersion);

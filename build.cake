@@ -65,6 +65,7 @@ Task("CleanAll")
 		Information("Cleaning {0}", path);
 
 		try {
+			CleanDirectories(path + "/packages");
 			CleanDirectories(path + "/**/bin");
 			CleanDirectories(path + "/**/obj");
 		}
@@ -155,12 +156,20 @@ Task("Build")
 			{
 				case "dotnetcore":
 					var dotNetCoreBuildSettings = new DotNetCoreMSBuildSettings();
-					if (!string.IsNullOrEmpty(versionInfo.ToVersionPrefix()))
-						dotNetCoreBuildSettings.SetVersionPrefix(versionInfo.ToVersionPrefix());
-					if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
-						dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
-					if (!string.IsNullOrEmpty(versionInfo.ToString()))
-						dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(false));			
+
+					if (versionInfo.IsSemantic)
+					{
+							dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString());
+					} 
+					else 
+					{
+						if (!string.IsNullOrEmpty(versionInfo.ToVersionPrefix()))
+							dotNetCoreBuildSettings.SetVersionPrefix(versionInfo.ToVersionPrefix());
+						if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
+							dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
+						if (!string.IsNullOrEmpty(versionInfo.ToString()))
+							dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(false));			
+					}
 
 					DotNetCoreBuild(solution.ToString(), new DotNetCoreBuildSettings
 													{
@@ -331,13 +340,16 @@ Task("Nuget-Package-DotNetCore")
 	CreateDirectory(artifactsPath);
 
 	var dotNetCoreBuildSettings = new DotNetCoreMSBuildSettings();
-	if (!string.IsNullOrEmpty(versionInfo.ToVersionPrefix()))
-		dotNetCoreBuildSettings.SetVersionPrefix(versionInfo.ToVersionPrefix());
-	if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
-		dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
-	if (!string.IsNullOrEmpty(versionInfo.ToString()))
-		dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString(true));			
-						
+
+	dotNetCoreBuildSettings.SetFileVersion(versionInfo.ToString());			
+	if (!versionInfo.IsSemantic)
+	{
+		if (!string.IsNullOrEmpty(versionInfo.ToVersionPrefix()))
+			dotNetCoreBuildSettings.SetVersionPrefix(versionInfo.ToVersionPrefix());
+		if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
+			dotNetCoreBuildSettings.SetVersionSuffix(versionInfo.ToVersionSuffix());			
+	}
+
 	var opts = new DotNetCorePackSettings
 	{
 		Configuration = settings.Configuration,
@@ -347,8 +359,9 @@ Task("Nuget-Package-DotNetCore")
 		MSBuildSettings = dotNetCoreBuildSettings
 	};
 
-	if (!string.IsNullOrEmpty(versionInfo.ToVersionSuffix()))
+	if (!versionInfo.IsSemantic && versionInfo.IsPreRelease) {
 		opts.VersionSuffix = versionInfo.ToVersionSuffix();
+	}
 
 	if (settings.NuGet.IncludeSymbols) {
 		opts.ArgumentCustomization = args => args.Append("--include-symbols -p:SymbolPackageFormat=snupkg");

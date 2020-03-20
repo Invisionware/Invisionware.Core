@@ -132,6 +132,11 @@ public class SettingsUtils
 		context.Information("\t\t-settingsFile=<Settings File>\t\t(Default: {0})", defaultValues.SettingsFile);
 		context.Information("\t\t-versionFile=<Version File>\t\t(Default: {0})", defaultValues.VersionFile);
 		context.Information("\t\t-autoincrement=<0|1>\t\t\t\t(Default: {0})", defaultValues.Version.AutoIncrementVersion);
+		context.Information("\t\t-versionMajor=<Major Version Number>");
+		context.Information("\t\t-versionMinor=<Minor Version Number>");
+		context.Information("\t\t-versionBuild=<Build Version Number>");
+		context.Information("\t\t-versionSuffix=<Version Suffix> (ex: pre, beta, alpha)");
+		context.Information("\t\t-versionPreRelease=<PreRelease Number>");
 		context.Information("\t\t-build=<0|1>\t\t\t\t(Default: {0})", defaultValues.ExecuteBuild);
 		context.Information("\t\t-package=<0|1>\t\t\t\t(Default: {0})", defaultValues.ExecutePackage);
 		context.Information("\t\t-unitTest=<0|1>\t\t\t\t(Default: {0})", defaultValues.ExecuteUnitTest);

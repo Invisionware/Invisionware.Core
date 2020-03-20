@@ -68,6 +68,7 @@ stages:
   - stage: nuget_deploy  
     jobs:
       - deployment: nuget_deploy
+        condition: and(succeeded(), eq(variables['Deploy.Nuget'], 'true'))
         pool: Personal-Docker
         environment: nuget        
         strategy:        
